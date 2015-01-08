@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <title>JM Clock</title>
+    <style>
+      .hour {  position: relative; font-size: 38px; font-family: sans-serif; }
+    </style>
+  </head>
+  <script>
+/* The Jasper Morrison clock in HTML5 http://www.jaspermorrison.com/html/40657857.html
+  ToDo :
+  sechand : better shape, lighter red
+  add an outside Rim
+  center the thing, make it enlargable
+  find a better name
+  make it as close as possible as jasper's website
+  are we anti aliasing everything correclty ?
+  find the right font
+  make it work great as a webapp on ipad / iphones (and spare batteries as far as possible), then show Tib
+  extract style from code
+  put some drop shadow 
+  make a black version (?)
+*/  
+
+window.onload = function(){
+  var minhand = document.getElementById('minhand');
+  var hhand = document.getElementById('hhand')
+  var sechand = document.getElementById('sechand')
+  placeTicks();
+  startStopClock();
+  /* Test a specific time
+  var d=new Date();
+  var h="10:09:35";  // as can be seen on jasper's website
+  d.setHours(  h.split(":")[0]);
+  d.setMinutes(h.split(":")[1]);
+  d.setSeconds(h.split(":")[2]);
+  d.setMilliseconds('0');
+  setClock(d);
+//*/
+}
+
+function setClock(curDate) {
+  if (curDate === undefined) {
+    var curDate = new Date();
+  }
+  cms = curDate.getMilliseconds();
+  cs = curDate.getSeconds();
+  cm = curDate.getMinutes();
+  ch = curDate.getHours();
+  sechand.style.transform = "rotate("+((cs+cms/1000) * 6)+"deg)";
+  minhand.style.transform = "rotate("+((cm+cs/60) * 6)+"deg)";  
+  hhand.style.transform   = "rotate("+((ch+cm/60+cs/3600) * 30)+"deg)";
+}
+
+function startStopClock() {
+  if (window.interval === undefined) {
+    window.interval = window.setInterval(function(){setClock();},20)      
+  } else {
+   window.clearInterval(window.interval);
+   delete window.interval; 
+  }
+}
+
+function placeTicks() {
+  var clock=document.getElementById('clockbg');
+  for (var i=0;i<30;i++) {
+    var type="small", rotate=6;
+    if (i%5 == 0) {
+      type="big";
+      rotate=30;
+    }
+    var newTick = document.getElementById(type+'tick').cloneNode(true);  
+    newTick.style.transform = "rotate("+rotate*i+"deg)";
+    newTick.id = newTick.id+i;
+    newTick.style.webkitBackfaceVisibility = "hidden";
+    clock.appendChild(newTick);
+  }
+  document.getElementById('smalltick').style.display = "none";
+}
+
+
+ </script>
+ <body>
+  <div id="clockbg">
+    <svg id="clockpane" style="position: absolute;top: 0;left: 0;margin: auto;" width="500px" height="500px">
+      <circle cx="250" cy="250" r="250" fill="rgb(231, 230, 226)"></circle>
+      <circle cx="250" cy="250" r="230" fill="rgb(244, 243, 239)"></circle>
+    </svg>
+    <svg id="bigtick" style="position: absolute;top: 0;left: 250px;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg>
+    <svg id="smalltick" style="position: absolute; top: 0px; left: 250px;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg>
+  </div>
+  <div id="minhand" style="position: absolute; top: 0; left: 242px;">
+    <svg id="svgminhand" style="height: 500px;width: 18px;">
+      <path id="p1" d="M 3 250 l 0 -195 a5,5 0 0,1 5,-5 l 2 0 a5,5 0 0,1 5,5 l 0 195 Z" stroke-width="0" fill="black"></path>
+    </svg>
+  </div>
+  <div id="hhand" style="position: absolute; top: 0; left: 240px;">
+    <svg id="svghhand" style="height: 500px;width: 22px;">
+      <path id="p1" d="M 3 250 l 0 -140 a8,5 0 0,1 8,-5 l 0 0 a8,5 0 0,1 8,5 l 0 140 Z" stroke-width="0" fill="black"></path>
+    </svg>
+  </div>
+<!--
+    <svg id="crossV" style="position: absolute;top: 0;left: 250px;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg>
+    <svg id="crossH" style="position: absolute;top: 0;left:250px;transform:rotate(90deg);" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg>
+
+-->
+  <div id="sechand" style="position: absolute; top: 0; left: 236px;">
+    <svg id="svgsechand" style="height: 500px;width: 30px">
+      <rect id="thinpart" x="12" y="45" rx="2" ry="2" width="3" height="210" fill="rgb(170, 43, 28)"></rect>
+      <rect id="thickpart" x="12" y="240" rx="2" ry="2" width="6" height="85" fill="rgb(170, 43, 28)"></rect>
+      <circle cx="15" cy="252" r="15" fill="rgb(170, 43, 28)"></circle>
+    </svg>
+  </div>
+  </div>
+  <div class="hour" id="hour0" style="top: 55px;left: 232px;">0</div>
+  <div class="hour" id="hour2" style="top: 94px; left: 378px;">2</div>
+  <div class="hour" id="hour4" style="top: 220px; left: 378px;">4</div>
+  <div class="hour" id="hour6" style="top: 256px; left: 233px;">6</div>
+  <div class="hour" id="hour8" style="top: 134px; left: 87px;">8</div>
+  <div class="hour" id="hour10" style="top: -80px; left: 80px;letter-spacing: -4px;">10</div>
+</body></html>
