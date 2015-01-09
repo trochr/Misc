@@ -71,6 +71,7 @@ function placeTicks() {
     }
     var newTick = document.getElementById(type+'tick').cloneNode(true);  
     newTick.style.transform = "rotate("+rotate*i+"deg)";
+    newTick.style.webkitTransform = "rotate("+rotate*i+"deg)";
     newTick.id = newTick.id+i;
     newTick.style.webkitBackfaceVisibility = "hidden";
     clock.appendChild(newTick);
