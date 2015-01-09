@@ -95,6 +95,7 @@ function placeNumbers() {
     newnum.appendChild(newinner);
     newnum.id = "num"+i;
     newnum.style.transform = "rotate("+(i*30)+"deg)";
+    newnum.style.webkitTransform = newnum.style.transform;
     document.getElementById('clock').appendChild(newnum);
   }
 }
