@@ -52,6 +52,9 @@ function setClock(curDate) {
   sechand.style.transform = "rotate("+((cs+cms/1000) * 6)+"deg)";
   minhand.style.transform = "rotate("+((cm+cs/60+cms/60000) * 6)+"deg)";  
   hhand.style.transform   = "rotate("+((ch+cm/60+cs/3600) * 30)+"deg)";
+  sechand.style.webkitTransform = sechand.style.transform;
+  minhand.style.webkitTransform = minhand.style.transform;
+  hhand.style.webkitTransform = hhand.style.transform;
 }
 
 function startStopClock() {
@@ -73,6 +76,7 @@ function placeTicks() {
     }
     var newTick = document.getElementById(type+'tick').cloneNode(true);  
     newTick.style.transform = "rotate("+rotate*i+"deg)";
+    newTick.style.webkitTransform = newTick.style.transform;
     newTick.id = newTick.id+i;
     newTick.style.webkitBackfaceVisibility = "hidden";
     clock.appendChild(newTick);
