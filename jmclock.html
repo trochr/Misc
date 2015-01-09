@@ -29,6 +29,7 @@ window.onload = function(){
   var hhand = document.getElementById('hhand')
   var sechand = document.getElementById('sechand')
   placeTicks();
+  placeNumbers();
   startStopClock();
   /* Test a specific time
   var d=new Date();
@@ -84,6 +85,19 @@ function placeTicks() {
   document.getElementById('smalltick').style.display = "none";
 }
 
+function placeNumbers() {
+  for (var i=2; i<12; i+=2) {
+    var newnum = document.getElementById('num0').cloneNode();
+    var newinner = document.createElement('div');
+    newinner.innerHTML = i;
+    newinner.style.transform = "rotate(-"+(i*30)+"deg)";
+    newinner.style.webkitTransform = newinner.style.transform;
+    newnum.appendChild(newinner);
+    newnum.id = "num"+i;
+    newnum.style.transform = "rotate("+(i*30)+"deg)";
+    document.getElementById('clock').appendChild(newnum);
+  }
+}
 
  </script>
  <body>
@@ -135,11 +149,6 @@ function placeTicks() {
       <circle cx="15" cy="252" r="15" fill="rgb(170, 43, 28)"></circle>
     </svg>
   </div>
-  <div class="divnum"><div>0</div></div>
-  <div class="divnum" style="transform: rotate(60deg);"><div style="transform: rotate(-60deg);">2</div></div>
-  <div class="divnum" style="transform: rotate(120deg);"><div style="transform: rotate(-120deg);">4</div></div>
-  <div class="divnum" style="transform: rotate(180deg);"><div style="transform: rotate(-180deg);">6</div></div>
-  <div class="divnum" style="transform: rotate(240deg);"><div style="transform: rotate(-240deg);">8</div></div>
-  <div class="divnum" style="transform: rotate(300deg);"><div style="transform: rotate(-300deg);">10</div></div>
+  <div id="num0" class="divnum"><div>0</div></div>
 </div>
 </body></html>
