@@ -29,7 +29,7 @@ window.onload = function(){
   var sechand = document.getElementById('sechand')
   placeTicks();
   placeNumbers();
-  if (window.location.hash != "" ) { // add a specific timeat the end of URL, ex: #10:09:35
+  if (window.location.location != "" ) { // add a specific timeat the end of URL, ex: #10:09:35
     var d=new Date();
     var h=window.location.search.match('[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}')[0];
     d.setHours(  h.split(":")[0]);d.setMinutes(h.split(":")[1]);d.setSeconds(h.split(":")[2]);
