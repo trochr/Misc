@@ -29,7 +29,7 @@ window.onload = function(){
   var sechand = document.getElementById('sechand')
   placeTicks();
   placeNumbers();
-  if (window.location.location != "" ) { // add a specific timeat the end of URL, ex: #10:09:35
+  if (window.location.search != "" ) { // add a specific timeat the end of URL, ex: #10:09:35
     var d=new Date();
     var h=window.location.search.match('[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}')[0];
     d.setHours(  h.split(":")[0]);d.setMinutes(h.split(":")[1]);d.setSeconds(h.split(":")[2]);
@@ -93,7 +93,7 @@ function placeNumbers() {
     newnum.id = "num"+i;
     newnum.style.transform = "rotate("+(i*30)+"deg)";
     newnum.style.webkitTransform = newnum.style.transform;
-    document.getElementById('clock').appendChild(newnum);
+    document.getElementById('nums').appendChild(newnum);
   }
 }
 
@@ -114,6 +114,9 @@ function placeNumbers() {
       <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
     </svg>
   </div>
+  <div id="nums">
+    <div id="num0" class="divnum"><div>0</div></div>
+  </div>
   <div id="minhand" style="position: absolute; top: 0; left: 242px;">
     <svg id="svgminhand" style="height: 500px;width: 18px;">
       <path id="p1" d="M 3 250 l 0 -195 a5,5 0 0,1 5,-5 l 2 0 a5,5 0 0,1 5,5 l 0 195 Z" stroke-width="0" fill="black"></path>
@@ -131,7 +134,6 @@ function placeNumbers() {
       <circle cx="15" cy="252" r="15" fill="rgb(170, 43, 28)"></circle>
     </svg>
   </div>
-  <div id="num0" class="divnum"><div>0</div></div>
 </div>
 <!-- 
 <div style="background: url('http://www.jaspermorrison.com/images/projects/electric_wallclock.jpg');width: 570px;height: 680px; background-size: 1143px;position: relative;margin: auto;opacity: 1;">
