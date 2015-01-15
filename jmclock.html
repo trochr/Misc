@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<html>
-  <head>
-    <meta name="viewport" content="width=512,user-scalable=yes">
+<!-- saved from url=(0041)http://trochr.github.io/Misc/jmclock.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- <meta name="viewport" content="width=512,user-scalable=yes"> -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Bro'Clock</title>
     <style>
@@ -9,7 +9,6 @@
       .hour {  position: relative; font-size: 38px; font-family: sans-serif; }
       .divnum { width:75%; height:75%; position: absolute; top: 12.5%; left: 12.5%;letter-spacing: -4px; }
     </style>
-  </head>
   <script>
 /* The Jasper Morrison clock in HTML5 http://www.jaspermorrison.com/html/40657857.html
   ToDo :
@@ -33,6 +32,9 @@ window.onload = function(){
     return setClock(d);
   }
   startStopClock();
+  document.getElementById('clock').onclick = function () {
+    startStopClock();
+  }
 }
 
 function setClock(curDate) {
@@ -93,9 +95,11 @@ function placeNumbers() {
   }
 }
 
- </script>
+ </script><style type="text/css"></style></head>
+  
  <body>
-<div id="clock" style="width:500px;height:500px;margin:auto;position:relative;  text-align: center;">
+
+<div id="clock" style="/*border:1px solid black;*/width:500px;height:500px;margin:auto;position:relative;  text-align: center;">
   <div id="clockbg">
     <svg id="clockpane" style="position: absolute;top: 0;left: 0;margin: auto;" width="500px" height="500px">
       <circle cx="250" cy="250" r="250" fill="rgb(240, 239, 231)"></circle>
@@ -105,42 +109,134 @@ function placeNumbers() {
       <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
       <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
     </svg>
-    <svg id="smalltick" style="position: absolute; top: 0px; left: 250px;" width="2px" height="500px">
+    <svg id="smalltick" style="position: absolute; top: 0px; left: 250px; display: none;" width="2px" height="500px">
       <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
       <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
     </svg>
-  </div>
+  <svg id="bigtick0" style="position: absolute; top: 0px; left: 250px; transform: rotate(0deg); -webkit-transform: rotate(0deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick1" style="position: absolute; top: 0px; left: 250px; transform: rotate(6deg); -webkit-transform: rotate(6deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick2" style="position: absolute; top: 0px; left: 250px; transform: rotate(12deg); -webkit-transform: rotate(12deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick3" style="position: absolute; top: 0px; left: 250px; transform: rotate(18deg); -webkit-transform: rotate(18deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick4" style="position: absolute; top: 0px; left: 250px; transform: rotate(24deg); -webkit-transform: rotate(24deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="bigtick5" style="position: absolute; top: 0px; left: 250px; transform: rotate(150deg); -webkit-transform: rotate(150deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick6" style="position: absolute; top: 0px; left: 250px; transform: rotate(36deg); -webkit-transform: rotate(36deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick7" style="position: absolute; top: 0px; left: 250px; transform: rotate(42deg); -webkit-transform: rotate(42deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick8" style="position: absolute; top: 0px; left: 250px; transform: rotate(48deg); -webkit-transform: rotate(48deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick9" style="position: absolute; top: 0px; left: 250px; transform: rotate(54deg); -webkit-transform: rotate(54deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="bigtick10" style="position: absolute; top: 0px; left: 250px; transform: rotate(300deg); -webkit-transform: rotate(300deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick11" style="position: absolute; top: 0px; left: 250px; transform: rotate(66deg); -webkit-transform: rotate(66deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick12" style="position: absolute; top: 0px; left: 250px; transform: rotate(72deg); -webkit-transform: rotate(72deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick13" style="position: absolute; top: 0px; left: 250px; transform: rotate(78deg); -webkit-transform: rotate(78deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick14" style="position: absolute; top: 0px; left: 250px; transform: rotate(84deg); -webkit-transform: rotate(84deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="bigtick15" style="position: absolute; top: 0px; left: 250px; transform: rotate(450deg); -webkit-transform: rotate(450deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick16" style="position: absolute; top: 0px; left: 250px; transform: rotate(96deg); -webkit-transform: rotate(96deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick17" style="position: absolute; top: 0px; left: 250px; transform: rotate(102deg); -webkit-transform: rotate(102deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick18" style="position: absolute; top: 0px; left: 250px; transform: rotate(108deg); -webkit-transform: rotate(108deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick19" style="position: absolute; top: 0px; left: 250px; transform: rotate(114deg); -webkit-transform: rotate(114deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="bigtick20" style="position: absolute; top: 0px; left: 250px; transform: rotate(600deg); -webkit-transform: rotate(600deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick21" style="position: absolute; top: 0px; left: 250px; transform: rotate(126deg); -webkit-transform: rotate(126deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick22" style="position: absolute; top: 0px; left: 250px; transform: rotate(132deg); -webkit-transform: rotate(132deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick23" style="position: absolute; top: 0px; left: 250px; transform: rotate(138deg); -webkit-transform: rotate(138deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick24" style="position: absolute; top: 0px; left: 250px; transform: rotate(144deg); -webkit-transform: rotate(144deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="bigtick25" style="position: absolute; top: 0px; left: 250px; transform: rotate(750deg); -webkit-transform: rotate(750deg); -webkit-backface-visibility: hidden;" width="3px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="58" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="442" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick26" style="position: absolute; top: 0px; left: 250px; transform: rotate(156deg); -webkit-transform: rotate(156deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick27" style="position: absolute; top: 0px; left: 250px; transform: rotate(162deg); -webkit-transform: rotate(162deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick28" style="position: absolute; top: 0px; left: 250px; transform: rotate(168deg); -webkit-transform: rotate(168deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg><svg id="smalltick29" style="position: absolute; top: 0px; left: 250px; transform: rotate(174deg); -webkit-transform: rotate(174deg); -webkit-backface-visibility: hidden;" width="2px" height="500px">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="black" stroke-width="3"></line>
+      <line x1="0" y1="460" x2="0" y2="480" stroke="black" stroke-width="3"></line>
+    </svg></div>
   <div id="nums">
     <div id="num0" class="divnum"><div>0</div></div>
-  </div>
-  <div id="minhand" style="position: absolute; top: 0; left: 242px;">
+  <div id="num2" class="divnum" style="transform: rotate(60deg); -webkit-transform: rotate(60deg);"><div style="transform: rotate(-60deg); -webkit-transform: rotate(-60deg);">2</div></div><div id="num4" class="divnum" style="transform: rotate(120deg); -webkit-transform: rotate(120deg);"><div style="transform: rotate(-120deg); -webkit-transform: rotate(-120deg);">4</div></div><div id="num6" class="divnum" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);"><div style="transform: rotate(-180deg); -webkit-transform: rotate(-180deg);">6</div></div><div id="num8" class="divnum" style="transform: rotate(240deg); -webkit-transform: rotate(240deg);"><div style="transform: rotate(-240deg); -webkit-transform: rotate(-240deg);">8</div></div><div id="num10" class="divnum" style="transform: rotate(300deg); -webkit-transform: rotate(300deg);"><div style="transform: rotate(-300deg); -webkit-transform: rotate(-300deg);">10</div></div></div>
+  <div id="minhand" style="/*border:1px solid black;*/position: absolute; top: -1px; left: 241px; transform: rotate(322.2655deg); -webkit-transform: rotate(322.2655deg);width:18px;height:500px;">
     <svg id="svgminhand" style="height: 500px;width: 18px;">
       <path id="p1" d="M 3 250 l 0 -195 a5,5 0 0,1 5,-5 l 2 0 a5,5 0 0,1 5,5 l 0 195 Z" stroke-width="0" fill="black"></path>
     </svg>
   </div>
-  <div id="hhand" style="position: absolute; top: 0; left: 240px;">
+  <div id="hhand" style="/*border:1px solid black;*/position: absolute; top: -1px; left: 238px; transform: rotate(416.85deg); -webkit-transform: rotate(416.85deg);width:22px;height:500px;">
     <svg id="svghhand" style="height: 500px;width: 22px;">
       <path id="p1" d="M 3 250 l 0 -140 a8,5 0 0,1 8,-5 l 0 0 a8,5 0 0,1 8,5 l 0 140 Z" stroke-width="0" fill="black"></path>
     </svg>
   </div>
-  <div id="sechand" style="position: absolute; top: 0; left: 236px;">
-<!--    <svg id="svgsechand" style="height: 500px;width: 30px">
-      <rect id="thinpart" x="13.5" y="45" rx="2" ry="2" width="3" height="210" fill="rgb(170, 43, 28)"></rect>
-      <rect id="thickpart" x="12" y="240" rx="2" ry="2" width="6" height="85" fill="rgb(170, 43, 28)"></rect>
-      <circle cx="15" cy="252" r="15" fill="rgb(170, 43, 28)"></circle>
-    </svg>
-  -->
+  <div id="sechand" style="/*border:1px solid black;*/position: absolute; top: -1px; left: 234px; transform: rotate(255.93deg); -webkit-transform: rotate(255.93deg);width:30px;height:500px;">
     <svg x="0px" y="0px" width="30px" height="500px" viewBox="0 0 30 500">
 <path fill="#EF2929" d="M29.986,250c0,5.874-3.38,10.957-8.299,13.415l-0.148,0.089c-3.009,1.653-5.047,4.851-5.047,8.527h-0.008
 	v49.429c0,0.821-0.665,1.487-1.486,1.487c-0.822,0-1.487-0.666-1.487-1.487v-49.429h-0.007c0-3.677-2.038-6.874-5.047-8.527
 	l-0.148-0.089c-4.92-2.458-8.299-7.541-8.299-13.415c0-5.873,3.379-10.958,8.299-13.416l0.148-0.089
 	c3.009-1.652,5.047-4.852,5.047-8.527h0.007V40.159c0-0.822,0.666-1.488,1.487-1.488c0.821,0,1.486,0.666,1.486,1.488v187.809h0.008
-	c0,3.676,2.038,6.875,5.047,8.527l0.148,0.089C26.606,239.042,29.986,244.127,29.986,250z"/>
-<circle fill="#D32929" cx="15.029" cy="250" r="4.93"/>
+	c0,3.676,2.038,6.875,5.047,8.527l0.148,0.089C26.606,239.042,29.986,244.127,29.986,250z"></path>
+<circle fill="#D32929" cx="15.029" cy="250" r="4.93"></circle>
     </svg>
   </div>
+<!--    <div style="position: absolute; top: 0px; left: 250px;width:1px;height:500px">
+    <svg  width="1" height="500" id="crossv"><line x1="0" y1="0" x2="0" y2="500" style="stroke:rgb(0,0,0);stroke-width:1"></svg>
+  </div>
+  <div style="transform:rotate(90deg);position: absolute; top: 0px; left: 250px;width:1px;height:500px">
+    <svg  width="1" height="500" id="crossh"><line x1="0" y1="0" x2="0" y2="500" style="stroke:rgb(0,0,0);stroke-width:1"></svg>
+  </div>
+ -->
 </div>
 <!-- 
 <div style="background: url('http://www.jaspermorrison.com/images/projects/electric_wallclock.jpg');width: 570px;height: 680px; background-size: 1143px;position: relative;margin: auto;opacity: 1;">
 -->
-</div></body></html>
+
+</body></html>
