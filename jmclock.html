@@ -54,7 +54,7 @@ function setClock(curDate) {
 
 function startStopClock() {
   if (window.interval === undefined) {
-    window.interval = window.setInterval(function(){setClock();},(1000/8))      
+    window.interval = window.setInterval(function(){setClock();},(1000/50))      
   } else {
    window.clearInterval(window.interval);
    delete window.interval; 
