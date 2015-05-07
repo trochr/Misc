@@ -9,7 +9,10 @@ Upload a local file to read Exif data.
 <script>
   document.getElementById("file-input").onchange = function(e) {
     EXIF.getData(e.target.files[0], function() {
-        alert(EXIF.pretty(this));
+      if (EXIF(this).EXIFwrapped.exifdata.hasOwnProperty("DateTime")) {
+       return alert("DateTime found in EXIF data : "+EXIF(this).EXIFwrapped.exifdata.DateTime);
+      }
+      alert("No DateTime found in EXIF data");
     });
 }
 </script>
