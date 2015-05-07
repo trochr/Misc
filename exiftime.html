@@ -1,5 +1,18 @@
+<!doctype html>
 <html>
+<script type="text/javascript" src="https://rawgit.com/jseidelin/exif-js/master/exif.js"></script>
 <body>
-cool
+Upload a local file to read Exif data.
+<br/>
+<input id="file-input" type="file" />
+<br/><br/>
+<script>
+  document.getElementById("file-input").onchange = function(e) {
+    EXIF.getData(e.target.files[0], function() {
+        alert(EXIF.pretty(this));
+    });
+}
+</script>
+
 </body>
 </html>
