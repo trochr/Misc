@@ -441,10 +441,10 @@ function loadAS() {
   console.log('Getting progress in local settings : '+localStorage.progress);
   asSettings.progress = loadProgress();
   var ps = getAllPs();
+  showStatus();
   if (asSettings.debug) {
     toggleDebug();
   }
-  showStatus();
   ps.forEach(function (e) {
     e.onmouseover = function () {
       onP(this);
