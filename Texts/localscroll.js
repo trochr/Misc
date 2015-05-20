@@ -458,6 +458,7 @@ function loadAS() {
       offP(this);
     };
   });
+  window.setInterval(saveProgress,10000)
 }
 
 // Handling of ESC key. One press : stop the scroll, 2 presses : display debug 
