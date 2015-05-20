@@ -382,15 +382,7 @@ function showStatus() {
   cbdebug.setAttribute('id', "cbdebug");
   cbdebug.setAttribute('style', "transform: scale(0.8);vertical-align:middle;margin:0;height:13px;width:13px;-webkit-appearance: checkbox;");
   cbdebug.checked = asSettings.statusAutoHide;
-  cbdebug.onchange = function (e) {
-    asSettings.debug = e.target.checked;
-    if (!asSettings.debug) {
-      document.getElementById('ddebug').setAttribute('style', "display: none;");
-    } else {
-      toggleDebug();
-    }
-  };
-
+  
   hlink.href = "http://trochr.github.io/ScrollStuff";
   hlink.style.position = "absolute";
   hlink.style.right = "7px";
@@ -410,6 +402,15 @@ function showStatus() {
   ddebug.appendChild(sdebug);
   sdiv.appendChild(ddebug);
   elm.insertBefore(sdiv, elm.firstChild);
+  cbdebug.onchange = function (e) {
+    asSettings.debug = e.target.checked;
+    if (!asSettings.debug) {
+      document.getElementById('ddebug').setAttribute('style', "display: none;");
+    } else {
+      toggleDebug();
+    }
+  };
+
   setupPlusMinus();
   revealStatus(sdiv);
 }
