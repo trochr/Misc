@@ -355,7 +355,7 @@ function showStatus() {
     + "<span id='wpm'>" + asSettings.wordsReadPerMinute + "</span>"
     + "<span id='pwpm' style='cursor:pointer;'> + </span></span>" + "<span title=\"words per minute\"> wpm</span> ";
   sdiv.setAttribute('style', "background: white;position: fixed;text-align: center;"
-    + "text-shadow: 0 1px 0 #fff;color: #696969;font-family: sans-serif;font-size:16px;"
+    + "text-shadow: 0 1px 0 #fff;color: #696969;font-family: sans-serif;font-size:22px;"
     + "bottom: -10px;left: 0;right: 0;"
     + "margin: auto;"
     + "-webkit-user-select: none;line-height:normal;");
