@@ -350,7 +350,7 @@ function showStatus() {
     hlink = document.createElement('a');
 
   sdiv.id = "smartscrollbanner";
-  sdiv.innerHTML = "<span id='chwpm'>"
+  sdiv.innerHTML = "<span id='playpause'>&#9612;&#9612</span>;<span id='chwpm'>"
     + "<span id='mwpm' style='cursor:pointer;'> - </span>"
     + "<span id='wpm'>" + asSettings.wordsReadPerMinute + "</span>"
     + "<span id='pwpm' style='cursor:pointer;'> + </span></span>" + "<span title=\"words per minute\"> wpm</span> ";
