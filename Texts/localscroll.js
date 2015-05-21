@@ -293,7 +293,7 @@ function pauseScroll() {
   asSettings.scrolling = (asSettings.scrolling > 0) ? 0 : 1;
   if (asSettings.scrolling === 0) {
     setTimeout(saveProgress,0);
-    document.getElementById('playpause').innerHTML = "&#9654;";
+    document.getElementById('playpause').innerHTML = "&#9660;";
     if (asSettings.debug === true) {
       document.getElementById('psd').innerHTML = "∞";       
     }
