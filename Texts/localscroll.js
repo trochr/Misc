@@ -106,7 +106,7 @@ function unloadAS() {
 function revealStatus(ds) {
   'use strict';
   if (parseInt(ds.style.bottom, 10) < 0) {
-    ds.style.top = parseInt(ds.style.bottom, 10) + 1 + "px";
+    ds.style.bottom = parseInt(ds.style.bottom, 10) + 1 + "px";
     window.setTimeout(function () {
       revealStatus(ds);
     }, 20);
