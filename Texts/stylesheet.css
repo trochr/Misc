@@ -31,6 +31,10 @@ img {
   max-width: 100%;
 }
 
+span#playpause {
+  font-family: Arial Unicode MS;
+}
+
 @media only screen 
 and (min-device-width : 320px) 
 and (max-device-width : 568px) 
