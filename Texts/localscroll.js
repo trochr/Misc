@@ -373,7 +373,7 @@ function showStatus() {
     pauseScroll();
   };
   sdiv.onclick = function (e) {
-    if (e.target == this) {
+    if (e.target == this || e.id == "playpause") {
       document.getElementById('cbpause').click();
     }
   };
