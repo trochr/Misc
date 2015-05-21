@@ -5,7 +5,7 @@
 var asSettings = {wordsReadPerMinute: 180,
     interval: null,
     scrolling: 1,
-    debug: true,
+    debug: false,
     curElm: null,
     debugInvokeDelay: 200,
     lastEscPressTime: 0,
