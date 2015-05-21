@@ -24,6 +24,9 @@ body {
   text-align: justify;
 }
 
+h1 {
+  font-size: 1.6em;
+}
 img {
   max-width: 100%;
 }
