@@ -105,8 +105,8 @@ function unloadAS() {
 
 function revealStatus(ds) {
   'use strict';
-  if (parseInt(ds.style.top, 10) < 0) {
-    ds.style.top = parseInt(ds.style.top, 10) + 1 + "px";
+  if (parseInt(ds.style.bottom, 10) < 0) {
+    ds.style.top = parseInt(ds.style.bottom, 10) + 1 + "px";
     window.setTimeout(function () {
       revealStatus(ds);
     }, 20);
@@ -356,7 +356,7 @@ function showStatus() {
     + "<span id='pwpm' style='cursor:pointer;'> + </span></span>" + "<span title=\"words per minute\"> wpm</span> ";
   sdiv.setAttribute('style', "background: white;position: fixed;text-align: center;"
     + "text-shadow: 0 1px 0 #fff;color: #696969;font-family: sans-serif;font-size:16px;"
-    + "top: -10px;left: 0;right: 0;"
+    + "bottom: -10px;left: 0;right: 0;"
     + "margin: auto;"
     + "-webkit-user-select: none;line-height:normal;");
   spanpause.innerHTML = "pause";
