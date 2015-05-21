@@ -362,12 +362,12 @@ function showStatus() {
     + "margin: auto;"
     + "-webkit-user-select: none;line-height:normal;");
   spanpause.innerHTML = "pause";
-  spanpause.setAttribute('style', "font-size: x-small;margin-left: 10px;vertical-align: middle;");
+  spanpause.setAttribute('style', "display: none;font-size: x-small;margin-left: 10px;vertical-align: middle;");
   sdiv.appendChild(spanpause);
   cbpause.setAttribute('title', 'Tip : Press ESC anytime to pause/unpause scrolling');
   cbpause.setAttribute('type', "checkbox");
   cbpause.setAttribute('id', "cbpause");
-  cbpause.setAttribute('style', "transform: scale(0.8);vertical-align:middle;margin:0;height:13px;width:13px;-webkit-appearance: checkbox;");
+  cbpause.setAttribute('style', "display: none;transform: scale(0.8);vertical-align:middle;margin:0;height:13px;width:13px;-webkit-appearance: checkbox;");
   cbpause.checked = false;
   cbpause.onchange = function () {
     pauseScroll();
