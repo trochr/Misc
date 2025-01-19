@@ -2,8 +2,6 @@
 
 A clock : http://trochr.github.io/Misc/jmclock.html
 
-AIX_01 : http://trochr.github.io/Misc/AIX_01.html
-
 
 # Texts
 
