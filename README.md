@@ -2,6 +2,7 @@
 
 A clock : http://trochr.github.io/Misc/jmclock.html
 
+A picross clone : http://trochr.github.io/Misc/picross.html
 
 # Texts
 
