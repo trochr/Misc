@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Picross Clone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #controls {
+            margin: 10px;
+            text-align: center;
+        }
+
+        #game {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            margin: 20px;
+        }
+
+        #col-clues {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #row-clues {
+            display: flex;
+            flex-direction: column;
+            margin-right: 5px;
+        }
+
+        .clue-cell {
+            border: 1px solid transparent;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        #row-clues .clue-cell {
+            min-width: 40px;
+            height: 20px;
+            justify-content: flex-end;
+            white-space: nowrap;
+            padding: 0 5px;
+        }
+
+        #col-clues .clue-cell {
+            width: 20px;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        #col-clues .clue-number {
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        #grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #grid {
+            display: inline-grid;
+            gap: 0;
+            background: #ccc;
+            position: relative;
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #999;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .cell.active {
+            background: #333;
+        }
+
+        .cell.empty {
+            background: #ddd;
+            position: relative;
+        }
+
+        .cell.empty::after {
+            content: "×";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+        }
+
+        .grid-line-h, .grid-line-v {
+            position: absolute;
+            background: #666;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .grid-line-h {
+            height: 2px;
+            width: 100%;
+        }
+
+        .grid-line-v {
+            width: 2px;
+            height: 100%;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: green;
+        }
+
+        #message.lost {
+            color: red;
+        }
+
+        #size-controls {
+            display: inline-block;
+        }
+
+        #size-controls.hidden {
+            display: none;
+        }
+
+        #hash-preview {
+            margin-top: 10px;
+            width: 300px;
+            padding: 5px;
+        }
+
+        #timer {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #222;
+                color: #ddd;
+            }
+            #grid {
+                background: #555;
+            }
+            .cell {
+                background: #333;
+                border-color: #777;
+            }
+            .grid-line-h, .grid-line-v {
+                background: #aaa;
+            }
+            .cell.active {
+                background: #fff;
+            }
+            .cell.empty {
+                background: #444;
+            }
+            .cell.empty::after {
+                color: #aaa;
+            }
+            #message {
+                color: #0f0;
+            }
+            #message.lost {
+                color: #f00;
+            }
+            #hash-preview {
+                background: #333;
+                color: #ddd;
+                border: 1px solid #777;
+            }
+            #timer {
+                color: #ddd;
+            }
+        }
+        /* Added styles for clue editing */
+        .clue-input {
+            width: 40px;
+            height: 20px;
+            font-size: 12px;
+            padding: 0 2px;
+            box-sizing: border-box;
+        }
+        #col-clues .clue-input {
+            width: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <div id="size-controls">
+            <label>Width: <input type="range" id="width-slider" min="1" max="20" value="5"> <span id="width-value">5</span></label>
+            <label>Height: <input type="range" id="height-slider" min="1" max="20" value="5"> <span id="height-value">5</span></label>
+            <label><input type="checkbox" id="lock-ratio"> Lock 1:1 Ratio</label>
+        </div>
+        <button id="reset-grid">Reset Grid</button>
+        <div>
+            <input type="text" id="hash-preview" readonly placeholder="URL hash will appear here">
+        </div>
+        <div id="timer">30:00</div>
+    </div>
+    <div id="game">
+        <div id="row-clues"></div>
+        <div id="grid-container">
+            <div id="col-clues"></div>
+            <div id="grid"></div>
+            <div id="message"></div>
+        </div>
+    </div>
+    <button id="toggle-mode">Switch to Edit Mode</button>
+    <button id="edit-clues" style="display: none;">Edit Clues</button>
+    <button id="solve-button">Solve</button>
+    <script>
+        let width = 15;
+        let height = 15;
+        let grid = Array(height).fill().map(() => Array(width).fill(0));
+        let solution = Array(height).fill().map(() => Array(width).fill(0));
+        let isEditMode = false;
+        let isDragging = false;
+        let dragType = null;
+        let timeLeft = 1800;
+        let timerInterval = null;
+        let isClueEditMode = false; // New variable for clue editing sub-mode
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isEditMode) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        gameOver();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        }
+
+        function gameOver() {
+            document.getElementById("message").textContent = "Game Over!";
+            document.getElementById("message").classList.add("lost");
+            document.getElementById("grid").style.pointerEvents = "none";
+        }
+
+        function applyPenalty() {
+            timeLeft = Math.max(0, timeLeft - 300);
+            updateTimerDisplay();
+            if (timeLeft <= 0) gameOver();
+        }
+
+        function addGridLines() {
+            const gridDiv = document.getElementById("grid");
+            const existingLines = gridDiv.querySelectorAll(".grid-line-h, .grid-line-v");
+            existingLines.forEach(line => line.remove());
+
+            if (width <= 10 && height <= 10) return;
+
+            const cellSize = 20;
+            const borderOffset = 1;
+
+            for (let y = 5; y < height; y += 5) {
+                const line = document.createElement("div");
+                line.classList.add("grid-line-h");
+                line.style.top = `${y * cellSize + borderOffset}px`;
+                gridDiv.appendChild(line);
+            }
+
+            for (let x = 5; x < width; x += 5) {
+                const line = document.createElement("div");
+                line.classList.add("grid-line-v");
+                line.style.left = `${x * cellSize + borderOffset}px`;
+                gridDiv.appendChild(line);
+            }
+        }
+
+        function initGrid() {
+            const gridDiv = document.getElementById("grid");
+            gridDiv.style.gridTemplateColumns = `repeat(${width}, 20px)`;
+            gridDiv.innerHTML = "";
+            gridDiv.style.pointerEvents = "auto";
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    cell.addEventListener("mousedown", handleMouseDown);
+                    cell.addEventListener("mouseover", handleMouseOver);
+                    cell.addEventListener("contextmenu", e => e.preventDefault());
+                    gridDiv.appendChild(cell);
+                }
+            }
+            document.addEventListener("mouseup", handleMouseUp);
+            if (!isEditMode && !window.location.hash) {
+                setDefaultPattern();
+                grid = Array(height).fill().map(() => Array(width).fill(0));
+            } else if (isEditMode && window.location.hash) {
+                grid = solution.map(row => [...row]);
+            }
+            addGridLines();
+            updateClues();
+            updateCells();
+            updateSizeDisplay();
+            updateHashPreview();
+            if (!isEditMode) startTimer();
+        }
+
+        function setDefaultPattern() {
+            width = 15;
+            height = 15;
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            const defaultHash = "5051802120515021207130212061201120b11011109110c1101110311031203130212031208120f111103110113011103130112011301120114011901140217021509130";
+            let pos = 0;
+            for (let i = 0; i < defaultHash.length && pos < width * height; i += 2) {
+                const count = parseInt(defaultHash[i], 16);
+                const value = parseInt(defaultHash[i + 1], 10);
+                for (let j = 0; j < count && pos < width * height; j++) {
+                    const y = Math.floor(pos / width);
+                    const x = pos % width;
+                    solution[y][x] = value;
+                    pos++;
+                }
+            }
+        }
+
+        function handleMouseDown(e) {
+            const x = +e.target.dataset.x;
+            const y = +e.target.dataset.y;
+            if (isEditMode && e.button === 0 && !isClueEditMode) { // Only edit grid if not in clue edit mode
+                isDragging = true;
+                dragType = "edit";
+                grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+                solution = grid.map(row => [...row]);
+                updateCells();
+                updateClues();
+                updateURL();
+            } else if (!isEditMode && timeLeft > 0) {
+                isDragging = true;
+                if (e.button === 0) {
+                    dragType = "left";
+                    grid[y][x] = grid[y][x] === 2 ? 0 : 2;
+                } else if (e.button === 2) {
+                    dragType = "right";
+                    grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+                    if (grid[y][x] === 1 && solution[y][x] === 0) applyPenalty();
+                }
+                updateCells();
+                checkWin();
+            }
+        }
+
+        function handleMouseOver(e) {
+            if (!isDragging || timeLeft <= 0) return;
+            const x = +e.target.dataset.x;
+            const y = +e.target.dataset.y;
+            if (dragType === "edit" && !isClueEditMode) { // Only edit grid if not in clue edit mode
+                grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+                solution = grid.map(row => [...row]);
+                updateCells();
+                updateClues();
+                updateURL();
+            } else if (dragType === "left") {
+                grid[y][x] = grid[y][x] === 2 ? 0 : 2;
+                updateCells();
+                checkWin();
+            } else if (dragType === "right") {
+                grid[y][x] = grid[y][x] === 1 ? 0 : 1;
+                if (grid[y][x] === 1 && solution[y][x] === 0) applyPenalty();
+                updateCells();
+                checkWin();
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+            dragType = null;
+        }
+
+        function updateCells() {
+            const cells = document.querySelectorAll(".cell");
+            cells.forEach(cell => {
+                const x = +cell.dataset.x;
+                const y = +cell.dataset.y;
+                cell.classList.remove("active", "empty");
+                if (grid[y][x] === 1) cell.classList.add("active");
+                else if (grid[y][x] === 2) cell.classList.add("empty");
+            });
+        }
+
+        function updateClues() {
+            const rowClues = document.getElementById("row-clues");
+            const colClues = document.getElementById("col-clues");
+            rowClues.innerHTML = "";
+            colClues.innerHTML = "";
+
+            let maxColClueHeight = 0;
+            for (let x = 0; x < width; x++) {
+                const col = solution.map(row => row[x]);
+                const counts = getCounts(col);
+                const span = document.createElement("span");
+                span.classList.add("clue-cell");
+                if (counts.length) {
+                    counts.forEach(num => {
+                        const numSpan = document.createElement("span");
+                        numSpan.classList.add("clue-number");
+                        numSpan.textContent = num;
+                        span.appendChild(numSpan);
+                    });
+                } else {
+                    const numSpan = document.createElement("span");
+                    numSpan.classList.add("clue-number");
+                    numSpan.textContent = "0";
+                    span.appendChild(numSpan);
+                }
+                colClues.appendChild(span);
+                maxColClueHeight = Math.max(maxColClueHeight, counts.length || 1);
+            }
+
+            const clueHeight = 20;
+            const colCluesHeight = maxColClueHeight * clueHeight + 2;
+            rowClues.style.marginTop = `${colCluesHeight}px`;
+
+            for (let y = 0; y < height; y++) {
+                const counts = getCounts(solution[y]);
+                const div = document.createElement("div");
+                const clueSpan = document.createElement("span");
+                clueSpan.classList.add("clue-cell");
+                clueSpan.textContent = counts.length ? counts.join(" ") : "0";
+                div.appendChild(clueSpan);
+                rowClues.appendChild(div);
+            }
+        }
+
+        // New function to toggle clue editing mode
+        function toggleClueEditMode() {
+            isClueEditMode = !isClueEditMode;
+            const editCluesButton = document.getElementById("edit-clues");
+            editCluesButton.textContent = isClueEditMode ? "Edit Grid" : "Edit Clues";
+            enableClueEditing(isClueEditMode);
+        }
+
+        // New function to enable/disable clue editing
+        function enableClueEditing(enable) {
+            const rowClues = document.querySelectorAll("#row-clues .clue-cell");
+            const colClues = document.querySelectorAll("#col-clues .clue-cell");
+
+            if (enable) {
+                // Convert row clues to inputs
+                rowClues.forEach((span, i) => {
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.classList.add("clue-input");
+                    input.value = span.textContent;
+                    input.addEventListener("blur", () => updateRowClue(i, input.value));
+                    span.replaceWith(input);
+                });
+
+                // Convert column clues to inputs
+                colClues.forEach((span, i) => {
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.classList.add("clue-input");
+                    input.value = Array.from(span.querySelectorAll(".clue-number")).map(num => num.textContent).join(" ") || "0";
+                    input.addEventListener("blur", () => updateColClue(i, input.value));
+                    span.replaceWith(input);
+                });
+            } else {
+                // Convert row inputs back to spans
+                rowClues.forEach((input, i) => {
+                    if (input.tagName === "INPUT") {
+                        updateRowClue(i, input.value);
+                    }
+                });
+
+                // Convert column inputs back to spans
+                colClues.forEach((input, i) => {
+                    if (input.tagName === "INPUT") {
+                        updateColClue(i, input.value);
+                    }
+                });
+            }
+        }
+
+        // New function to update row clue from input
+        function updateRowClue(index, value) {
+            const numbers = value.trim().split(" ").map(Number).filter(n => !isNaN(n) && n > 0);
+            const span = document.createElement("span");
+            span.classList.add("clue-cell");
+            span.textContent = numbers.length ? numbers.join(" ") : "0";
+            const rowDiv = document.querySelectorAll("#row-clues > div")[index];
+            rowDiv.innerHTML = "";
+            rowDiv.appendChild(span);
+
+            // Update solution based on new clues
+            updateSolutionFromClues();
+        }
+
+        // New function to update column clue from input
+        function updateColClue(index, value) {
+            const numbers = value.trim().split(" ").map(Number).filter(n => !isNaN(n) && n > 0);
+            const span = document.createElement("span");
+            span.classList.add("clue-cell");
+            if (numbers.length) {
+                numbers.forEach(num => {
+                    const numSpan = document.createElement("span");
+                    numSpan.classList.add("clue-number");
+                    numSpan.textContent = num;
+                    span.appendChild(numSpan);
+                });
+            } else {
+                const numSpan = document.createElement("span");
+                numSpan.classList.add("clue-number");
+                numSpan.textContent = "0";
+                span.appendChild(numSpan);
+            }
+            const colClue = document.querySelectorAll("#col-clues .clue-cell")[index];
+            colClue.replaceWith(span);
+
+            // Update solution based on new clues
+            updateSolutionFromClues();
+        }
+
+        // New function to update solution based on edited clues
+        function updateSolutionFromClues() {
+            const rowClues = getRowClues();
+            const colClues = getColClues();
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            // For simplicity, we'll clear the solution and let the solver fill it later
+            // Alternatively, you could implement a basic clue-to-grid generator here
+            grid = solution.map(row => [...row]);
+            updateCells();
+            updateURL();
+        }
+
+        function getCounts(arr) {
+            const counts = [];
+            let count = 0;
+            for (let val of arr) {
+                if (val === 1) count++;
+                else if (count > 0) {
+                    counts.push(count);
+                    count = 0;
+                }
+            }
+            if (count > 0) counts.push(count);
+            return counts;
+        }
+
+        function checkWin() {
+            const messageDiv = document.getElementById("message");
+            messageDiv.textContent = "";
+            messageDiv.classList.remove("lost");
+            if (isEditMode || timeLeft <= 0) return;
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (solution[y][x] === 1 && grid[y][x] !== 1) return;
+                    if (solution[y][x] === 0 && grid[y][x] === 1) return;
+                }
+            }
+            messageDiv.textContent = "You Won!";
+            clearInterval(timerInterval);
+        }
+
+        function updateURL() {
+            if (!isEditMode) return;
+            const binary = grid.flat().map(v => (v === 1 ? 1 : 0));
+            let rle = "";
+            let count = 1;
+            let current = binary[0];
+            for (let i = 1; i < binary.length; i++) {
+                if (binary[i] === current && count < 15) {
+                    count++;
+                } else {
+                    rle += count.toString(16) + current;
+                    count = 1;
+                    current = binary[i];
+                }
+            }
+            rle += count.toString(16) + current;
+            window.location.hash = `${width}x${height}:${rle}`;
+            updateHashPreview();
+        }
+
+        function updateHashPreview() {
+            document.getElementById("hash-preview").value = window.location.hash || "";
+        }
+
+        function updateSizeDisplay() {
+            document.getElementById("width-value").textContent = width;
+            document.getElementById("height-value").textContent = height;
+        }
+
+        function decodeURL() {
+            const hash = window.location.hash.slice(1);
+            if (!hash) return;
+            const [size, data] = hash.split(":");
+            const [w, h] = size.split("x").map(Number);
+            if (w < 1 || w > 20 || h < 1 || h > 20) return;
+            width = w;
+            height = h;
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            let pos = 0;
+            for (let i = 0; i < data.length && pos < w * h; i += 2) {
+                const count = parseInt(data[i], 16);
+                const value = parseInt(data[i + 1], 10);
+                for (let j = 0; j < count && pos < w * h; j++) {
+                    const y = Math.floor(pos / width);
+                    const x = pos % width;
+                    solution[y][x] = value;
+                    pos++;
+                }
+            }
+        }
+
+        document.getElementById("width-slider").addEventListener("input", e => {
+            width = +e.target.value;
+            if (document.getElementById("lock-ratio").checked) {
+                height = width;
+                document.getElementById("height-slider").value = height;
+            }
+            grid = Array(height).fill().map(() => Array(width).fill(0));
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            initGrid();
+        });
+
+        document.getElementById("height-slider").addEventListener("input", e => {
+            height = +e.target.value;
+            if (document.getElementById("lock-ratio").checked) {
+                width = height;
+                document.getElementById("width-slider").value = width;
+            }
+            grid = Array(height).fill().map(() => Array(width).fill(0));
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            initGrid();
+        });
+
+        document.getElementById("lock-ratio").addEventListener("change", e => {
+            if (e.target.checked) {
+                height = width;
+                document.getElementById("height-slider").value = height;
+                grid = Array(height).fill().map(() => Array(width).fill(0));
+                solution = Array(height).fill().map(() => Array(width).fill(0));
+                initGrid();
+            }
+        });
+
+        document.getElementById("reset-grid").addEventListener("click", () => {
+            window.location.hash = "";
+            width = 15;
+            height = 15;
+            document.getElementById("width-slider").value = 15;
+            document.getElementById("height-slider").value = 15;
+            isEditMode = false;
+            document.getElementById("toggle-mode").textContent = "Switch to Edit Mode";
+            document.getElementById("size-controls").classList.add("hidden");
+            grid = Array(height).fill().map(() => Array(width).fill(0));
+            solution = Array(height).fill().map(() => Array(width).fill(0));
+            timeLeft = 1800;
+            updateTimerDisplay();
+            initGrid();
+            isClueEditMode = false; // Reset clue edit mode
+            document.getElementById("edit-clues").style.display = "none";
+        });
+
+        document.getElementById("toggle-mode").addEventListener("click", () => {
+            isEditMode = !isEditMode;
+            document.getElementById("toggle-mode").textContent = `Switch to ${isEditMode ? "Play" : "Edit"} Mode`;
+            document.getElementById("size-controls").classList.toggle("hidden", !isEditMode);
+            document.getElementById("edit-clues").style.display = isEditMode ? "inline" : "none"; // Show/hide edit clues button
+            if (!isEditMode) {
+                grid = Array(height).fill().map(() => Array(width).fill(0));
+                timeLeft = 1800;
+                updateTimerDisplay();
+                isClueEditMode = false; // Exit clue edit mode when switching to play
+                enableClueEditing(false);
+            } else {
+                grid = solution.map(row => [...row]);
+                if (timerInterval) clearInterval(timerInterval);
+            }
+            updateCells();
+            updateClues();
+            document.getElementById("message").textContent = "";
+            document.getElementById("message").classList.remove("lost");
+            updateHashPreview();
+            if (!isEditMode) startTimer();
+        });
+
+        // Add event listener for clue edit toggle
+        document.getElementById("edit-clues").addEventListener("click", toggleClueEditMode);
+
+        // Startup
+        if (window.location.hash) decodeURL();
+        else setDefaultPattern();
+        grid = Array(height).fill().map(() => Array(width).fill(0));
+        initGrid();
+        document.getElementById("size-controls").classList.add("hidden");
+    </script>
+    <script>
+        // Picross Solver Bot (unchanged)
+        function getRowClues() {
+            const rowCluesDiv = document.getElementById("row-clues");
+            const rows = [];
+            for (let i = 0; i < rowCluesDiv.children.length; i++) {
+                const clueSpan = rowCluesDiv.children[i].querySelector(".clue-cell");
+                const text = clueSpan.textContent.trim();
+                if (text === "0") {
+                    rows.push([]);
+                } else {
+                    rows.push(text.split(" ").map(Number));
+                }
+            }
+            return rows;
+        }
+    
+        function getColClues() {
+            const colCluesDiv = document.getElementById("col-clues");
+            const cols = [];
+            for (let i = 0; i < colCluesDiv.children.length; i++) {
+                const clueCell = colCluesDiv.children[i];
+                const clueNumbers = Array.from(clueCell.querySelectorAll(".clue-number")).map(span => parseInt(span.textContent, 10));
+                if (clueNumbers.length === 1 && clueNumbers[0] === 0) {
+                    cols.push([]);
+                } else {
+                    cols.push(clueNumbers);
+                }
+            }
+            return cols;
+        }
+    
+        function setCell(x, y, value) {
+            const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+            if (value === 1) {
+                cell.classList.add("active");
+                cell.classList.remove("empty");
+                console.log(`Set cell (${x}, ${y}) to filled`);
+            } else if (value === 2) {
+                cell.classList.add("empty");
+                cell.classList.remove("active");
+                console.log(`Set cell (${x}, ${y}) to empty`);
+            } else {
+                cell.classList.remove("active", "empty");
+                console.log(`Cleared cell (${x}, ${y})`);
+            }
+        }
+    
+        function generatePossibilities(N, clue) {
+            const K = clue.length;
+            if (K === 0) {
+                const result = ["".padEnd(N, "0")];
+                console.log(`Generated for N=${N}, clue=${JSON.stringify(clue)}: ${result.length} possibilities`);
+                return result;
+            }
+            const totalFilled = clue.reduce((a, b) => a + b, 0);
+            if (totalFilled > N) {
+                console.log(`No possibilities for N=${N}, clue=${JSON.stringify(clue)}: totalFilled (${totalFilled}) > N`);
+                return [];
+            }
+            const totalZeros = N - totalFilled;
+            const mandatoryBetween = K - 1;
+            if (totalZeros < mandatoryBetween) {
+                console.log(`No possibilities for N=${N}, clue=${JSON.stringify(clue)}: totalZeros (${totalZeros}) < mandatoryBetween (${mandatoryBetween})`);
+                return [];
+            }
+            const freeZeros = totalZeros - mandatoryBetween;
+            const P = K + 1;
+            const distributions = distribute(freeZeros, P);
+            const possibilities = [];
+            for (let dist of distributions) {
+                let state = "";
+                let currentPos = 0;
+                state += "0".repeat(dist[0]);
+                currentPos += dist[0];
+                for (let i = 0; i < K; i++) {
+                    state += "1".repeat(clue[i]);
+                    currentPos += clue[i];
+                    let gap = (i < K - 1) ? 1 + dist[i + 1] : dist[i + 1];
+                    state += "0".repeat(gap);
+                    currentPos += gap;
+                }
+                if (currentPos === N) possibilities.push(state);
+            }
+            console.log(`Generated for N=${N}, clue=${JSON.stringify(clue)}: ${possibilities.length} possibilities${possibilities.length > 0 ? ` (e.g., ${possibilities[0]})` : ""}`);
+            return possibilities;
+        }
+    
+        function distribute(M, P) {
+            const distributions = [];
+            function recurse(remaining, current, index) {
+                if (index === P) {
+                    if (remaining === 0) distributions.push(current.slice());
+                    return;
+                }
+                for (let i = 0; i <= remaining; i++) {
+                    current.push(i);
+                    recurse(remaining - i, current, index + 1);
+                    current.pop();
+                }
+            }
+            recurse(M, [], 0);
+            return distributions;
+        }
+    
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    
+        function checkSolution(cells, rowClues, colClues, width, height) {
+            const grid = Array(height).fill().map(() => Array(width).fill(0));
+            cells.forEach(cell => {
+                const x = parseInt(cell.dataset.x, 10);
+                const y = parseInt(cell.dataset.y, 10);
+                if (cell.classList.contains("active")) grid[y][x] = 1;
+            });
+    
+            for (let y = 0; y < height; y++) {
+                const row = grid[y];
+                const actualClue = [];
+                let count = 0;
+                for (let x = 0; x < width; x++) {
+                    if (row[x] === 1) {
+                        count++;
+                    } else if (count > 0) {
+                        actualClue.push(count);
+                        count = 0;
+                    }
+                }
+                if (count > 0) actualClue.push(count);
+                if (actualClue.length === 0 && rowClues[y].length === 0) continue;
+                if (JSON.stringify(actualClue) !== JSON.stringify(rowClues[y])) {
+                    console.log(`Row ${y} mismatch: expected ${JSON.stringify(rowClues[y])}, got ${JSON.stringify(actualClue)}`);
+                    return false;
+                }
+            }
+    
+            for (let x = 0; x < width; x++) {
+                const col = grid.map(row => row[x]);
+                const actualClue = [];
+                let count = 0;
+                for (let y = 0; y < height; y++) {
+                    if (col[y] === 1) {
+                        count++;
+                    } else if (count > 0) {
+                        actualClue.push(count);
+                        count = 0;
+                    }
+                }
+                if (count > 0) actualClue.push(count);
+                if (actualClue.length === 0 && colClues[x].length === 0) continue;
+                if (JSON.stringify(actualClue) !== JSON.stringify(colClues[x])) {
+                    console.log(`Col ${x} mismatch: expected ${JSON.stringify(colClues[x])}, got ${JSON.stringify(actualClue)}`);
+                    return false;
+                }
+            }
+            return true;
+        }
+    
+        async function solvePuzzle(rowClues, colClues, width, height) {
+            console.log("Starting solver...");
+            console.log("Row clues:", JSON.stringify(rowClues));
+            console.log("Column clues:", JSON.stringify(colClues));
+            console.log(`Dimensions: width=${width}, height=${height}`);
+    
+            if (!Number.isInteger(width) || !Number.isInteger(height)) {
+                console.error("Non-integer dimensions detected:", { width, height });
+                return;
+            }
+    
+            let rowPossibilities = rowClues.map((clue, i) => {
+                const poss = generatePossibilities(width, clue);
+                console.log(`Row ${i} possibilities (${JSON.stringify(clue)}): ${poss.length} possibilities${poss.length > 0 ? ` (e.g., ${poss[0]})` : ""}`);
+                return poss;
+            });
+            let colPossibilities = colClues.map((clue, i) => {
+                const poss = generatePossibilities(height, clue);
+                console.log(`Col ${i} possibilities (${JSON.stringify(clue)}): ${poss.length} possibilities${poss.length > 0 ? ` (e.g., ${poss[0]})` : ""}`);
+                return poss;
+            });
+    
+            if (rowPossibilities.some(p => !Array.isArray(p)) || colPossibilities.some(p => !Array.isArray(p))) {
+                console.error("Invalid initial possibilities detected.");
+                return;
+            }
+            if (rowPossibilities.some(p => p.length === 0) || colPossibilities.some(p => p.length === 0)) {
+                console.error("Some initial possibilities are empty - puzzle may be invalid.");
+                console.log("Row possibilities:", rowPossibilities.map((p, i) => `Row ${i}: ${p.length}`));
+                console.log("Col possibilities:", colPossibilities.map((p, i) => `Col ${i}: ${p.length}`));
+                return;
+            }
+    
+            let changed;
+            let iteration = 0;
+            const messageDiv = document.getElementById("message");
+            do {
+                iteration++;
+                messageDiv.textContent = `Solving: Iteration ${iteration}`;
+                messageDiv.classList.remove("lost");
+                console.log(`\nIteration ${iteration}:`);
+                changed = false;
+    
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        let rowPoss = rowPossibilities[y];
+                        let colPoss = colPossibilities[x];
+    
+                        if (!Array.isArray(rowPoss) || !Array.isArray(colPoss)) {
+                            console.error(`Possibilities undefined at (${x}, ${y}): rowPoss=${rowPoss}, colPoss=${colPoss}`);
+                            return;
+                        }
+    
+                        const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+                        const isActive = cell.classList.contains("active");
+                        const isEmpty = cell.classList.contains("empty");
+                        const currentState = isActive ? "filled" : isEmpty ? "empty" : "unset";
+                        console.log(`Checking (${x}, ${y}) - Current state: ${currentState}`);
+    
+                        const rowAllOnes = rowPoss.length > 0 && rowPoss.every(p => p[x] === "1");
+                        const rowAllZeros = rowPoss.length > 0 && rowPoss.every(p => p[x] === "0");
+                        const rowValue = rowAllOnes ? 1 : rowAllZeros ? 0 : null;
+                        console.log(`  Row ${y} at ${x}: ${rowPoss.length} possibilities, value = ${rowValue === 1 ? "1" : rowValue === 0 ? "0" : "undecided"}`);
+    
+                        const colAllOnes = colPoss.length > 0 && colPoss.every(p => p[y] === "1");
+                        const colAllZeros = colPoss.length > 0 && colPoss.every(p => p[y] === "0");
+                        const colValue = colAllOnes ? 1 : colAllZeros ? 0 : null;
+                        console.log(`  Col ${x} at ${y}: ${colPoss.length} possibilities, value = ${colValue === 1 ? "1" : colValue === 0 ? "0" : "undecided"}`);
+    
+                        if (rowValue === 1 && !isActive) {
+                            setCell(x, y, 1);
+                            changed = true;
+                        } else if (rowValue === 0 && !isEmpty) {
+                            setCell(x, y, 2);
+                            changed = true;
+                        } else if (colValue === 1 && !isActive) {
+                            setCell(x, y, 1);
+                            changed = true;
+                        } else if (colValue === 0 && !isEmpty) {
+                            setCell(x, y, 2);
+                            changed = true;
+                        } else if (rowValue !== null && colValue !== null && rowValue !== colValue) {
+                            console.error(`Contradiction at (${x}, ${y}): rowValue=${rowValue}, colValue=${colValue}`);
+                            messageDiv.textContent = `Solver failed at iteration ${iteration} - contradiction`;
+                            return;
+                        } else {
+                            console.log(`  No definitive state at (${x}, ${y}): rowValue=${rowValue}, colValue=${colValue}`);
+                        }
+    
+                        if (isActive) {
+                            const newRowPoss = rowPoss.filter(p => p[x] === "1");
+                            const newColPoss = colPoss.filter(p => p[y] === "1");
+                            console.log(`  Filtering due to filled: Row ${y} from ${rowPoss.length} to ${newRowPoss.length}, Col ${x} from ${colPoss.length} to ${newColPoss.length}`);
+                            rowPossibilities[y] = newRowPoss;
+                            colPossibilities[x] = newColPoss;
+                        } else if (isEmpty) {
+                            const newRowPoss = rowPoss.filter(p => p[x] === "0");
+                            const newColPoss = colPoss.filter(p => p[y] === "0");
+                            console.log(`  Filtering due to empty: Row ${y} from ${rowPoss.length} to ${newRowPoss.length}, Col ${x} from ${colPoss.length} to ${newColPoss.length}`);
+                            rowPossibilities[y] = newRowPoss;
+                            colPossibilities[x] = newColPoss;
+                        }
+    
+                        if (rowPossibilities[y].length === 0 || colPossibilities[x].length === 0) {
+                            console.error(`No valid possibilities left at (${x}, ${y})`);
+                            console.log(`Row ${y} possibilities:`, rowPossibilities[y]);
+                            console.log(`Col ${x} possibilities:`, colPossibilities[x]);
+                            messageDiv.textContent = `Solver failed at iteration ${iteration} - no possibilities`;
+                            return;
+                        }
+                    }
+                }
+    
+                if (changed) {
+                    await wait(1000);
+                }
+            } while (changed);
+    
+            const cells = Array.from(document.querySelectorAll(".cell")).filter(cell => {
+                const x = parseInt(cell.dataset.x, 10);
+                const y = parseInt(cell.dataset.y, 10);
+                return x < width && y < height;
+            });
+            console.log(`Total cells found: ${cells.length}`);
+            const cellStates = cells.map(cell => {
+                const x = cell.dataset.x;
+                const y = cell.dataset.y;
+                const isActive = cell.classList.contains("active");
+                const isEmpty = cell.classList.contains("empty");
+                return `(${x}, ${y}): ${isActive ? "filled" : isEmpty ? "empty" : "unset"}`;
+            });
+            console.log("Final cell states:", cellStates);
+    
+            const isSolved = checkSolution(cells, rowClues, colClues, width, height);
+            if (isSolved) {
+                console.log("Puzzle solved!");
+                messageDiv.textContent = `Puzzle solved in ${iteration} iterations!`;
+                cells.forEach(cell => {
+                    if (!cell.classList.contains("active") && !cell.classList.contains("empty")) {
+                        const x = parseInt(cell.dataset.x, 10);
+                        const y = parseInt(cell.dataset.y, 10);
+                        setCell(x, y, 2);
+                    }
+                });
+            } else {
+                console.log("Puzzle not fully solved - may require backtracking.");
+                console.log("Final row possibilities:", rowPossibilities.map((p, i) => `Row ${i}: ${p.length}`));
+                console.log("Final column possibilities:", colPossibilities.map((p, i) => `Col ${i}: ${p.length}`));
+                messageDiv.textContent = `Solver stopped at iteration ${iteration} - incomplete`;
+            }
+        }
+    
+        document.getElementById("solve-button").addEventListener("click", () => {
+            const rowClues = getRowClues();
+            const colClues = getColClues();
+            const gridDiv = document.getElementById("grid");
+            const cells = document.querySelectorAll(".cell").length;
+            const height = document.getElementById("row-clues").children.length;
+            const width = cells / height;
+            console.log(`Grid dimensions: width=${width}, height=${height}, total cells=${cells}`);
+            console.log(`Row clues length: ${rowClues.length}, Col clues length: ${colClues.length}`);
+            solvePuzzle(rowClues, colClues, width, height);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'924e90b92ac6bfc4',t:'MTc0MjczOTU4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
