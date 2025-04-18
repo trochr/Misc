@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+#gameContainer {
+    position: relative;
+    width: 400px;
+    height: 600px;
+    background: #fdf8f5;
+    overflow: hidden;
+}
+#score {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    left: unset;
+    top: unset;
+    color: #9ba8c3;
+    font-size: 20px;
+    font-style: italic;
+    z-index: 10;
+}
+#highScore {
+    display: none;
+}
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: none;
+    color: #9ba8c3;
+    font-size: 24px;
+    z-index: 10;
+}
+#restartBtn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #9ba8c3;
+    color: #fdf8f5;
+    border: none;
+    border-radius: 5px;
+}
+#restartBtn:hover {
+    background: #a7b2cc;
+}
+#debugPanel {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+    z-index: 10;
+}
+#debugPanel label {
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    align-items: center;
+    gap: 4px;
+    min-width: 240px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+#debugPanel input {
+    width: 70px;
+    padding: 2px 4px;
+    font-size: 12px;
+    text-align: right;
+    margin: 0;
+}
+#debugPanel span {
+    min-width: 60px;
+    display: inline-block;
+    text-align: right;
+    margin-left: 0;
+}
+#debugPanel button {
+    width: 100%;
+    margin-top: 10px;
+}

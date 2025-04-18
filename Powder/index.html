@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski Slope</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="score">Distance: 0m</div>
+        <div id="highScore">High Score: 0m</div>
+        <div id="gameOver" style="display: none;">
+            Game Over!<br>
+            <button id="restartBtn">Restart</button>
+        </div>
+        <div id="debugPanel">
+            <label>Speed: <span id="debugSpeed">0</span></label>
+            <label>Acceleration: <span id="debugAcceleration">0</span></label>
+            <label>Straight Accel: <input type="number" id="straightAccel" step="0.0001" value="0.01"> px/frame²</label>
+            <label>Turn Accel: <input type="number" id="turnAccel" step="0.0001" value="0.0002"> px/frame²</label>
+            <label>Turn Angle: <span id="debugTurnAngle">0</span></label>
+            <label>Turn Angle Rate Increase: <input type="number" id="turnAngleRateIncrease" step="0.1" value="2.5"> °/frame</label>
+            <label>Turn Angle Rate Decrease: <input type="number" id="turnAngleRateDecrease" step="0.1" value="3.5"> °/frame</label>
+            <label>Max Turn Angle: <input type="number" id="maxTurnAngle" step="1" value="90"> °</label>
+            <button id="resetHighScoreBtn" style="margin-top:8px;font-size:12px;">Reset High Score</button>
+        </div>
+        <svg id="gameSvg" width="400" height="600">
+            <defs>
+                <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                    <feOffset dx="2" dy="2" result="offsetblur"/>
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="0.3"/>
+                    </feComponentTransfer>
+                    <feMerge>
+                        <feMergeNode/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <filter id="playerShadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                    <feOffset dx="2" dy="2" result="offsetblur"/>
+                    <feComponentTransfer>
+                        <feFuncA type="linear" slope="0.3"/>
+                    </feComponentTransfer>
+                    <feMerge>
+                        <feMergeNode/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+        </svg>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>
