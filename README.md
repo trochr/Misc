@@ -6,8 +6,6 @@ A picross clone : http://trochr.github.io/Misc/picross.html
 
 A Box & Whiskers plot creator: http://trochr.github.io/Misc/boxAndWhiskers.html
 
-A Ski game recreation http://trochr.github.io/Misc/Powder/index.html
-
 
 # Texts
 
