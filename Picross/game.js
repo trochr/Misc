@@ -14,6 +14,7 @@
 // #clues:/1SN4hFEIYhDmIohFIYQ2CEMQhDEI4hDEIQxCO04iqGIQhqGIQxCiIQhkEI6BDE0hYjS (big bill) unsolved
 // #clues:/1LU7hiGophCKIwyCSJRyCEIZBCGRohJMQYhNacwhmIIZDFMIZjCKIQiFEQQjiEIYhEIMQhJEIolDEQQ0JA= (don't do them) unsovled
 // #clues:/1DNYhiGIUyDEeAzCSYQyCOIxxCIMQhREQQzJM0giDMISRCMMRBiINAiiEIokCGIQxCGIRxGIMQhEGZo (cute and magic) 
+// #clues:/1q0yxCMIqCCEMQjDYMRBiGQQhiEYYhDEIdyFEIQ3nMMQhmEkQhuGQQxEKYRBiEJJBEEMQhJMQgxELE= (some other cute bubbles)
 
 let width = 15;
 let height = 15;
