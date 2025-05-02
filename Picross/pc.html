@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)https://trochr.github.io/Misc/picross.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Picross Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+        <div id="controls">
+        <div id="size-controls" class="hidden">
+            <label>Width: <input type="range" id="width-slider" min="1" max="20" value="15"> <span id="width-value">15</span></label>
+            <label>Height: <input type="range" id="height-slider" min="1" max="20" value="15"> <span id="height-value">15</span></label>
+            <label><input type="checkbox" id="lock-ratio"> Lock 1:1 Ratio</label>
+        </div>
+        <label><input type="checkbox" id="debug-mode"> Enable Debug Mode</label> <!-- Debug mode checkbox -->
+        <button id="reset-grid">Reset Grid</button>
+        <div>
+            <input type="text" id="hash-preview" readonly placeholder="URL hash will appear here">
+        </div>
+        <div id="timer">29:42</div>
+    </div>
+    <div id="gameContainer">
+    <div id="game">
+        <div id="row-clues" style="margin-top: 82px;">
+            <!-- Row clues will be dynamically generated here -->
+        </div>
+        <div id="grid-container">
+            <div id="col-clues">
+                <!-- Column clues will be dynamically generated here -->
+            </div>
+            <div id="grid" style="grid-template-columns: repeat(15, 20px); pointer-events: auto;">
+                <!-- Grid cells will be dynamically generated here -->
+            </div>
+            <div id="message"></div>
+        </div>
+    </div>
+    </div>
+    <button id="toggle-mode">Switch to Edit Mode</button>
+    <button id="solve-button">Solve</button>
+    <button id="toggle-hint-mode">Switch to Hint Capture Mode</button>
+    <button id="generate-clues-url">Generate Clues-Only URL</button>
+    <script src="game.js"></script>
+    <script src="solver.js"></script>
+</body>
+</html>

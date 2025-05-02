@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picross Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        #error {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+        #explanation {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #explanation h2 {
+            margin-top: 0;
+        }
+        #explanation pre {
+            margin: 5px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Picross Converter</h1>
+    
+    <div class="section">
+        <label for="jsonInput">JSON Input:</label>
+        <textarea id="jsonInput" placeholder='{"topClues": [[2,1],...], "leftClues": [[0],...]}'></textarea>
+        <button onclick="encode()">Encode to Compressed</button>
+        <textarea id="compressedOutput" placeholder="Compressed output will appear here"></textarea>
+    </div>
+
+    <div class="section">
+        <label for="compressedInput">Compressed Input:</label>
+        <textarea id="compressedInput" placeholder="Paste compressed string here"></textarea>
+        <button onclick="decode()">Decode to JSON</button>
+        <textarea id="jsonOutput" placeholder="JSON output will appear here"></textarea>
+    </div>
+
+    <div id="error">Error: Invalid input</div>
+
+    <div id="explanation">
+        <h2>How It Works</h2>
+        <h3>Serialization (JSON Format)</h3>
+        <p>The input is a JSON object representing a Picross puzzle with only clues, for example:</p>
+        <pre>
+{
+  "topClues": [[2,1], [1,10], [0]],
+  "leftClues": [[0], [2], [1,12]]
+}
+        </pre>
+        <p>- Each inner array is a clue group (e.g., [2,1] means 2 filled, gap, 1 filled; [0] means no filled cells).<br>
+           - Numbers range from 0 to 15 (0 means empty row/column, max for a 15x15 grid).<br>
+           - Grid size: width (topClues length) × height (leftClues length), each ≤ 15, not necessarily square.</p>
+
+        <h3>Encoding Method (Compressed Format)</h3>
+        <p>The JSON is compressed into a Base64 string using a header and bit-packed data:</p>
+        <h4>Encoding Steps:</h4>
+        <pre>
+1. Header (22 bits):
+   - 4 bits: Width (number of topClues groups, 1-15).
+   - 4 bits: Height (number of leftClues groups, 1-15).
+   - 7 bits: Total number of numbers in topClues (0-127).
+   - 7 bits: Total number of numbers in leftClues (0-127).
+2. Data:
+   - For each number (0-15), encode as 4 bits (0 -> 0000, 15 -> 1111, no subtraction).
+   - Append 1-bit marker:
+     - 0: Continue in current group.
+     - 1: End of group (last number in a row/column clue).
+   - Concatenate all numbers from topClues, then leftClues.
+3. Combine header and data into a bit stream.
+4. Pad with 0s to a multiple of 8 bits (byte boundary).
+5. Split into 8-bit bytes, convert to characters, then encode as Base64.
+        </pre>
+        <h4>Decoding Steps:</h4>
+        <pre>
+1. Decode Base64 to bytes, then to a bit string.
+2. Extract header:
+   - First 4 bits: Width (W).
+   - Next 4 bits: Height (H).
+   - Next 7 bits: Number of numbers in topClues (N1).
+   - Next 7 bits: Number of numbers in leftClues (N2).
+3. Read data (5-bit chunks):
+   - 4 bits: Value (0-15 directly).
+   - 1 bit: 0 (add to current group), 1 (end group, add to topClues or leftClues).
+   - First N1 numbers go to topClues (W groups), next N2 to leftClues (H groups).
+4. Build JSON with topClues and leftClues arrays.
+        </pre>
+        <p>Example: A 5x5 (~15 numbers) compresses to ~12 bytes. A 15x15 with ~40 numbers is ~28 bytes (~38 chars Base64).</p>
+    </div>
+
+    <script src="codec.js"></script>
+        </script>
+</body>
+</html>
