@@ -2,7 +2,7 @@
 
 A clock : http://trochr.github.io/Misc/jmclock.html
 
-A picross clone : http://trochr.github.io/Misc/picross.html
+A picross clone : http://trochr.github.io/Misc/Picross
 
 A Box & Whiskers plot creator: http://trochr.github.io/Misc/boxAndWhiskers.html
 
