@@ -533,6 +533,10 @@ function decodeURL() {
         try {
             const { topClues, leftClues } = decodeCluesOnly(base64);
             console.log("Decoded clues:", { topClues, leftClues }); // Debug: Log decoded clues
+            IFS=""
+            puzzleId=""
+            topClues.forEach((e,i,n) => { puzzleId+=IFS+e[0]; IFS="," })
+            console.log(`puzzleId: ${puzzleId}`)
     
             // Reinitialize the grid based on the new clues
             width = topClues.length;
