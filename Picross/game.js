@@ -535,7 +535,7 @@ function decodeURL() {
             console.log("Decoded clues:", { topClues, leftClues }); // Debug: Log decoded clues
             IFS=""
             puzzleId=""
-            topClues.forEach((e,i,n) => { puzzleId+=IFS+e[0]; IFS="," })
+            topClues.forEach((e,i,n) => { puzzleId+=IFS+e.at(-1); IFS="," })
             console.log(`puzzleId: ${puzzleId}`)
     
             // Reinitialize the grid based on the new clues
