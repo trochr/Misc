@@ -6,6 +6,7 @@ A picross clone : http://trochr.github.io/Misc/Picross/pc.html
 
 A Box & Whiskers plot creator: http://trochr.github.io/Misc/boxAndWhiskers.html
 
+Some sort of game : http://trochr.github.io/Misc/TruchetFlood/index.html
 
 # Texts
 
