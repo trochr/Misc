@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Picross Clone</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for responsive design -->
 </head>
 <body>
         <div id="controls">
@@ -14,10 +13,16 @@
             <label>Height: <input type="range" id="height-slider" min="1" max="20" value="15"> <span id="height-value">15</span></label>
             <label><input type="checkbox" id="lock-ratio"> Lock 1:1 Ratio</label>
         </div>
+        <label><input type="checkbox" id="debug-mode"> Enable Debug Mode</label> <!-- Debug mode checkbox -->
+        <button id="reset-grid">Reset Grid</button>
+        <div>
+            <input type="text" id="hash-preview" readonly placeholder="URL hash will appear here">
+        </div>
+        <div id="timer">29:42</div>
     </div>
     <div id="gameContainer">
     <div id="game">
-        <div id="row-clues" style="margin-top: 10px;"> <!-- Further reduced top margin -->
+        <div id="row-clues" style="margin-top: 82px;">
             <!-- Row clues will be dynamically generated here -->
         </div>
         <div id="grid-container">
@@ -31,28 +36,11 @@
         </div>
     </div>
     </div>
-    <div id="puzzle-id" style="text-align: center; margin-top: 20px; font-size: 14px;"><span id="puzzle-id-value">N/A</span></div> 
+    <button id="toggle-mode">Switch to Edit Mode</button>
+    <button id="solve-button">Solve</button>
+    <button id="toggle-hint-mode">Switch to Hint Capture Mode</button>
+    <button id="generate-clues-url">Generate Clues-Only URL</button>
     <script src="game.js"></script>
     <script src="solver.js"></script>
-    <script>
-        // Automatically start solving when the page loads
-        window.addEventListener("load", () => {
-            const rowClues = getRowClues();
-            const colClues = getColClues();
-            const gridDiv = document.getElementById("grid");
-            const cells = document.querySelectorAll(".cell").length;
-            const height = document.getElementById("row-clues").children.length;
-            const width = cells / height;
-            solvePuzzle(rowClues, colClues, width, height);
-        });
-
-        // Update the puzzle ID display when the page loads
-        window.addEventListener("load", () => {
-            const puzzleIdElement = document.getElementById("puzzle-id-value");
-            const rowClues = getRowClues();
-            // let puzzleId = rowClues.map(clue => clue.length > 0 ? clue.join(",") : "0").join(",");
-            puzzleIdElement.textContent = puzzleId || "Unknown";
-        });
-    </script>
 </body>
 </html>

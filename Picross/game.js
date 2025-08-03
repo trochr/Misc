@@ -24,41 +24,6 @@ let isEditMode = false;
 let isHintMode = false; // New variable for hint capture mode
 let isDragging = false;
 let dragType = null;
-let timeLeft = 1800;
-let timerInterval = null;
-let isDebugMode = false; // Debug mode is off by default
-
-function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        if (!isEditMode) {
-            timeLeft--;
-            updateTimerDisplay();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                gameOver();
-            }
-        }
-    }, 1000);
-}
-
-function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-}
-
-function gameOver() {
-    document.getElementById("message").textContent = "Game Over!";
-    document.getElementById("message").classList.add("lost");
-    document.getElementById("grid").style.pointerEvents = "none";
-}
-
-function applyPenalty() {
-    timeLeft = Math.max(0, timeLeft - 300);
-    updateTimerDisplay();
-    if (timeLeft <= 0) gameOver();
-}
 
 function addGridLines() {
     const gridDiv = document.getElementById("grid");
@@ -112,8 +77,6 @@ function initGrid(topClues = null, leftClues = null) {
     updateCells();
     updateSizeDisplay();
     updateHashPreview();
-
-    if (!isEditMode && !isHintMode) startTimer();
 }
 
 function setDefaultPattern() {
@@ -152,7 +115,7 @@ function handleMouseDown(e) {
         solution = grid.map(row => [...row]);
         updateCells();
         updateClues();
-    } else if (!isEditMode && !isHintMode && timeLeft > 0) {
+    } else if (!isEditMode && !isHintMode) {
         isDragging = true;
         if (e.button === 0) {
             dragType = "left";
@@ -168,7 +131,7 @@ function handleMouseDown(e) {
 }
 
 function handleMouseOver(e) {
-    if (!isDragging || timeLeft <= 0) return;
+    if (!isDragging) return;
     const x = +e.target.dataset.x;
     const y = +e.target.dataset.y;
     if (dragType === "edit") {
@@ -327,7 +290,7 @@ function checkWin() {
     const messageDiv = document.getElementById("message");
     messageDiv.textContent = "";
     messageDiv.classList.remove("lost");
-    if (isEditMode || timeLeft <= 0) return;
+    if (isEditMode) return;
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             if (solution[y][x] === 1 && grid[y][x] !== 1) return;
@@ -335,7 +298,6 @@ function checkWin() {
         }
     }
     messageDiv.textContent = "You Won!";
-    clearInterval(timerInterval);
 }
 
 function updateURL() {
@@ -538,6 +500,12 @@ function decodeURL() {
             topClues.forEach((e,i,n) => { puzzleId+=IFS+e.at(-1); IFS="," })
             console.log(`puzzleId: ${puzzleId}`)
     
+            // Display the puzzleId at the top of the page
+            const puzzleIdDisplay = document.getElementById("puzzle-id-display");
+            if (puzzleIdDisplay) {
+                puzzleIdDisplay.textContent = `Puzzle ID: ${puzzleId}`;
+            }
+    
             // Reinitialize the grid based on the new clues
             width = topClues.length;
             height = leftClues.length;
@@ -618,65 +586,6 @@ document.getElementById("lock-ratio").addEventListener("change", e => {
     }
 });
 
-document.getElementById("reset-grid").addEventListener("click", () => {
-    window.location.hash = "";
-    width = 15;
-    height = 15;
-    document.getElementById("width-slider").value = 15;
-    document.getElementById("height-slider").value = 15;
-    isEditMode = false;
-    document.getElementById("toggle-mode").textContent = "Switch to Edit Mode";
-    document.getElementById("size-controls").classList.add("hidden");
-    grid = Array(height).fill().map(() => Array(width).fill(0));
-    solution = Array(height).fill().map(() => Array(width).fill(0));
-    timeLeft = 1800;
-    updateTimerDisplay();
-    initGrid();
-});
-
-document.getElementById("toggle-mode").addEventListener("click", () => {
-    isEditMode = !isEditMode;
-    document.getElementById("toggle-mode").textContent = `Switch to ${isEditMode ? "Play" : "Edit"} Mode`;
-    document.getElementById("size-controls").classList.toggle("hidden", !isEditMode);
-    if (!isEditMode) {
-        grid = Array(height).fill().map(() => Array(width).fill(0));
-        timeLeft = 1800;
-        updateTimerDisplay();
-    } else {
-        grid = solution.map(row => [...row]);
-        if (timerInterval) clearInterval(timerInterval);
-    }
-    updateCells();
-    updateClues();
-    document.getElementById("message").textContent = "";
-    document.getElementById("message").classList.remove("lost");
-    updateHashPreview();
-    if (!isEditMode) startTimer();
-});
-
-// Add event listener for the new button
-document.getElementById("toggle-hint-mode").addEventListener("click", () => {
-    isHintMode = !isHintMode;
-    document.getElementById("toggle-hint-mode").textContent = `Switch to ${isHintMode ? "Play" : "Hint Capture"} Mode`;
-    document.getElementById("size-controls").classList.toggle("hidden", !isHintMode);
-    if (!isHintMode) {
-        grid = Array(height).fill().map(() => Array(width).fill(0));
-        timeLeft = 1800;
-        updateTimerDisplay();
-    } else {
-        grid = solution.map(row => [...row]);
-        if (timerInterval) clearInterval(timerInterval);
-    }
-    updateCells();
-    updateClues();
-    document.getElementById("message").textContent = "";
-    document.getElementById("message").classList.remove("lost");
-    updateHashPreview();
-    if (!isHintMode) startTimer();
-});
-
-document.getElementById("generate-clues-url").addEventListener("click", generateCluesOnlyURL);
-
 function enableClueEditing(span, index, type) {
     const currentValue = span.textContent.trim();
     const input = document.createElement("input");
@@ -694,17 +603,6 @@ function enableClueEditing(span, index, type) {
     span.appendChild(input);
     input.focus();
 }
-
-function generateCluesOnlyURL() {
-    const rowClues = getRowClues();
-    const colClues = getColClues();
-    const base64 = encodeCluesOnly(colClues, rowClues);
-    const url = `${window.location.origin}${window.location.pathname}#clues:${base64}`;
-    navigator.clipboard.writeText(url).then(() => {
-        alert("Clues-only URL copied to clipboard!");
-    });
-}
-
 
 // Startup
 if (window.location.hash) {

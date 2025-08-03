@@ -20,8 +20,9 @@ body {
 #gameContainer {
     height: 500px;
     width: 450px;
-    position: absolute;
-    top: 160px;
+    position: relative;
+    margin: auto;
+    /* top: 160px; */
 }
 
 #col-clues {
