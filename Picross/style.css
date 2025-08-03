@@ -22,7 +22,7 @@ body {
     width: 450px;
     position: relative;
     margin: auto;
-    /* top: 160px; */
+    left: -70px;
 }
 
 #col-clues {
