@@ -145,6 +145,7 @@ function checkSolution(cells, rowClues, colClues, width, height) {
     return true;
 }
 
+let unSetCells = document.querySelectorAll(".cell").length;
 
 // In your first script (solver)
 function setCell(x, y, value) {
@@ -153,18 +154,22 @@ function setCell(x, y, value) {
         cell.classList.add("active");
         cell.classList.remove("empty");
         grid[y][x] = 1; // Sync grid
-        console.log(`Set cell (${x}, ${y}) to filled`);
+        unSetCells-=1;
+        // console.log(`Set cell (${x}, ${y}) to filled`);
     } else if (value === 2) {
         cell.classList.add("empty");
         cell.classList.remove("active");
         grid[y][x] = 2; // Sync grid
-        console.log(`Set cell (${x}, ${y}) to empty`);
+        unSetCells-=1;
+        // console.log(`Set cell (${x}, ${y}) to empty`);
     } else {
         cell.classList.remove("active", "empty");
         grid[y][x] = 0; // Sync grid
-        console.log(`Cleared cell (${x}, ${y})`);
+        // console.log(`Cleared cell (${x}, ${y})`);
     }
 }
+
+let solvingDelay = 250; // Default delay of 1 second
 
 async function solvePuzzle(rowClues, colClues, width, height) {
     console.log("Starting solver...");
@@ -172,38 +177,18 @@ async function solvePuzzle(rowClues, colClues, width, height) {
     console.log("Column clues:", JSON.stringify(colClues));
     console.log(`Dimensions: width=${width}, height=${height}`);
 
-    // Sync grid with current DOM state
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
-            if (cell.classList.contains("active")) {
-                grid[y][x] = 1;
-            } else if (cell.classList.contains("empty")) {
-                grid[y][x] = 2;
-            } else {
-                grid[y][x] = 0;
-            }
-        }
-    }
-    console.log("Initial grid state:", grid.map(row => row.join("")).join("\n"));
-
     let rowPossibilities = rowClues.map((clue, i) => generatePossibilities(width, clue));
     let colPossibilities = colClues.map((clue, i) => generatePossibilities(height, clue));
-
-    if (rowPossibilities.some(p => p.length === 0) || colPossibilities.some(p => p.length === 0)) {
-        console.error("Some initial possibilities are empty - puzzle may be invalid.");
-        return;
-    }
-
     let changed;
+    let ReallyChanged;
     let iteration = 0;
     const messageDiv = document.getElementById("message");
+
     do {
+        change = false;
+        ReallyChanged = false;
         iteration++;
         messageDiv.textContent = `Solving: Iteration ${iteration}`;
-        messageDiv.classList.remove("lost");
-        console.log(`\nIteration ${iteration}:`);
-        changed = false;
 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
@@ -218,8 +203,6 @@ async function solvePuzzle(rowClues, colClues, width, height) {
                 // Count filled cells in the row and column
                 const filledInRow = grid[y].filter(v => v === 1).length;
                 const filledInCol = grid.map(row => row[x]).filter(v => v === 1).length;
-
-                // Get the total required filled cells from the clues
                 const requiredInRow = rowClues[y].reduce((a, b) => a + b, 0);
                 const requiredInCol = colClues[x].reduce((a, b) => a + b, 0);
 
@@ -227,40 +210,48 @@ async function solvePuzzle(rowClues, colClues, width, height) {
                 if (filledInRow === requiredInRow && currentState === "unset") {
                     setCell(x, y, 2);
                     changed = true;
-                    console.log(`  Marking (${x}, ${y}) as empty because row ${y} is fully filled.`);
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as empty because row ${y} is fully filled.`);
                     continue;
                 }
                 if (filledInCol === requiredInCol && currentState === "unset") {
                     setCell(x, y, 2);
                     changed = true;
-                    console.log(`  Marking (${x}, ${y}) as empty because column ${x} is fully filled.`);
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as empty because column ${x} is fully filled.`);
                     continue;
                 }
 
-                const rowAllOnes = rowPoss.every(p => p[x] === "1");
-                const rowAllZeros = rowPoss.every(p => p[x] === "0");
-                const rowValue = rowAllOnes ? 1 : rowAllZeros ? 0 : null;
+                // Improved logic: Check consistency across possibilities
+                let rowOnesCount = rowPoss.reduce((count, poss) => count + (poss[x] === "1" ? 1 : 0), 0);
+                let rowZerosCount = rowPoss.reduce((count, poss) => count + (poss[x] === "0" ? 1 : 0), 0);
+                let colOnesCount = colPoss.reduce((count, poss) => count + (poss[y] === "1" ? 1 : 0), 0);
+                let colZerosCount = colPoss.reduce((count, poss) => count + (poss[y] === "0" ? 1 : 0), 0);
 
-                const colAllOnes = colPoss.every(p => p[y] === "1");
-                const colAllZeros = colPoss.every(p => p[y] === "0");
-                const colValue = colAllOnes ? 1 : colAllZeros ? 0 : null;
+                const rowPossCount = rowPoss.length;
+                const colPossCount = colPoss.length;
 
-                if (rowValue === 1 && !isActive) {
+                // Set cell if all valid possibilities agree on the value
+                if (rowOnesCount === rowPossCount && !isActive) {
                     setCell(x, y, 1);
                     changed = true;
-                } else if (rowValue === 0 && !isEmpty) {
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as filled because row ${y} possibilities agree on 1.`);
+                } else if (rowZerosCount === rowPossCount && !isEmpty) {
                     setCell(x, y, 2);
                     changed = true;
-                } else if (colValue === 1 && !isActive) {
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as empty because row ${y} possibilities agree on 0.`);
+                } else if (colOnesCount === colPossCount && !isActive) {
                     setCell(x, y, 1);
                     changed = true;
-                } else if (colValue === 0 && !isEmpty) {
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as filled because column ${x} possibilities agree on 1.`);
+                } else if (colZerosCount === colPossCount && !isEmpty) {
                     setCell(x, y, 2);
                     changed = true;
-                } else if (rowValue !== null && colValue !== null && rowValue !== colValue) {
-                    console.error(`Contradiction at (${x}, ${y}): rowValue=${rowValue}, colValue=${colValue}`);
-                    messageDiv.textContent = `Solver failed at iteration ${iteration} - contradiction`;
-                    return;
+                    ReallyChanged = true;
+                    // console.log(`  Marking (${x}, ${y}) as empty because column ${x} possibilities agree on 0.`);
                 }
 
                 if (isActive) {
@@ -278,16 +269,16 @@ async function solvePuzzle(rowClues, colClues, width, height) {
                 }
             }
         }
-
+        console.log(`#${iteration}: change=${changed}, ReallyChanged=${ReallyChanged},  ${unSetCells} still unset`);
         if (changed) {
-            await wait(1000);
+            await wait(solvingDelay);
         }
-    } while (changed);
+    } while (unSetCells > 0);
 
     const cells = Array.from(document.querySelectorAll(".cell")).filter(cell => {
-        const x = parseInt(cell.dataset.x, 10);
-        const y = parseInt(cell.dataset.y, 10);
-        return x < width && y < height;
+    const x = parseInt(cell.dataset.x, 10);
+    const y = parseInt(cell.dataset.y, 10);
+    return x < width && y < height;
     });
     const isSolved = checkSolution(cells, rowClues, colClues, width, height);
     if (isSolved) {

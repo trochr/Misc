@@ -32,27 +32,8 @@
     </div>
     </div>
     <div id="puzzle-id" style="text-align: center; margin-top: 20px; font-size: 14px;"><span id="puzzle-id-value">N/A</span></div> 
+    <div id="solve-status" style="text-align: center; margin-top: 10px; font-size: 14px; color: red;"></div>
     <script src="game.js"></script>
     <script src="solver.js"></script>
-    <script>
-        // Automatically start solving when the page loads
-        window.addEventListener("load", () => {
-            const rowClues = getRowClues();
-            const colClues = getColClues();
-            const gridDiv = document.getElementById("grid");
-            const cells = document.querySelectorAll(".cell").length;
-            const height = document.getElementById("row-clues").children.length;
-            const width = cells / height;
-            solvePuzzle(rowClues, colClues, width, height);
-        });
-
-        // Update the puzzle ID display when the page loads
-        window.addEventListener("load", () => {
-            const puzzleIdElement = document.getElementById("puzzle-id-value");
-            const rowClues = getRowClues();
-            // let puzzleId = rowClues.map(clue => clue.length > 0 ? clue.join(",") : "0").join(",");
-            puzzleIdElement.textContent = puzzleId || "Unknown";
-        });
-    </script>
 </body>
 </html>

@@ -1,21 +1,3 @@
-// /0qVcVLIYhRMGKQxQGwg3EGpA5DI4oiLMVayLI8jB2HJbhGGQxBkgP5hCOIQhiGQsw== (cutest thing ever)
-// /zhg61qGo7jiQcRDiEdRxLEMQzjGsQyDQN61pQczhkgVwzhA (some vegetables)
-// /zqNJDxUNBbuSRBCkYMR3kEkhB3mlp2FglDCiJVAjHMIhCkUtRCkEUxSjA== (aquarius)
-// /07G4hHEJohGGQgyFIMgiiIUgjkEkURGKQz0kSIRCiEYZBEGIhCiIQYiGKIRRESIRhmaZ5DCGgQxDA== (air defence stuff)
-// /2bBJhiEIYhCiIgxCSJAxCEMghDEIRBkEIohCGIQniIIZkqEURjDQIRRCEUQniGh4iiEMQhiEcShiEIYhCGIgig= (magnificient beast)
-// /3jRSxGEMRhJEJAhiUJYiCEMQhCGQQhiEIQyCEMwliEYQxEEkRBDMk4hiGIghFEIgiDEKA1CEMQkikMhSOGIxhiE4QxCEIQ1LA== (it pinches)
-// /0bzIiiMYYhCEkRiCKIRCiUcT1LilS4tSsgxGGIQhCGIQhCGIQhCGIghEGIQhJEIQjiEIQiiEIxxGeIURVuA (slimey stuff)
-// #clues:/2Kox0IGQQhiMNRjiEQwyCWQQlkIshCDQQYjJIIQzKGY53iSgQikEQYiESJAhoWKA6DEoQxMKRQhiElY (heavy stuff)
-// #clues:/1iZJCiENQhHMISBiEIajiQMRBDEIQxCGQQhkSYrUkGQphFIgoiiKwYkFMQYhDEIgyIEMQj3 (green prince) : unsolved
-// #clues:/1jNpBFMIYmDUMQhEGIRiqEIYhCEMQjmHMQhCGId0iGQ5hCKRRhoMMQhEGQRBDEIQiDEIghoIMRhkMQZhFOA (whikers bubbles)
-// #clues:/0yZbyCOIQjkEIohCOQQikEmIikEVAioSQ41FIIiSCEJJhCEUghFMIQ0CLF5BkGQaUlA (ace)
-// #clues:/0BtbTJMcwikEkQlkSJYjJUchCiIVJUkKQqTnQNBVCKgTSCeZqDtWA== (slash)
-// #clues:/2TIgxCEcQhCKJAhiIg4jGGxAxKGISCDIgwxESJ5BHEUSSDEIRxCEIoiCEMRDDEgh2IKJQxMIMhjDUkQmkEcQxJA (bites at night)
-// #clues:/1SN4hFEIYhDmIohFIYQ2CEMQhDEI4hDEIQxCO04iqGIQhqGIQxCiIQhkEI6BDE0hYjS (big bill) unsolved
-// #clues:/1LU7hiGophCKIwyCSJRyCEIZBCGRohJMQYhNacwhmIIZDFMIZjCKIQiFEQQjiEIYhEIMQhJEIolDEQQ0JA= (don't do them) unsovled
-// #clues:/1DNYhiGIUyDEeAzCSYQyCOIxxCIMQhREQQzJM0giDMISRCMMRBiINAiiEIokCGIQxCGIRxGIMQhEGZo (cute and magic) 
-// #clues:/1q0yxCMIqCCEMQjDYMRBiGQQhiEYYhDEIdyFEIQ3nMMQhmEkQhuGQQxEKYRBiEJJBEEMQhJMQgxELE= (some other cute bubbles)
-
 let width = 15;
 let height = 15;
 let grid = Array(height).fill().map(() => Array(width).fill(0));
@@ -24,6 +6,37 @@ let isEditMode = false;
 let isHintMode = false; // New variable for hint capture mode
 let isDragging = false;
 let dragType = null;
+let isSolvingPaused = false;
+let gameIsPaused = false; // New flag to control the solving process
+
+// Automatically start solving when the page loads
+window.addEventListener("load", () => {
+    console.log("Page loaded, starting solvePuzzle");
+    const rowClues = getRowClues();
+    const colClues = getColClues();
+    const gridDiv = document.getElementById("grid");
+    const cells = document.querySelectorAll(".cell").length;
+    const height = document.getElementById("row-clues").children.length;
+    const width = cells / height;
+    solvePuzzle(rowClues, colClues, width, height);
+});
+
+// Update the puzzle ID display when the page loads
+window.addEventListener("load", () => {
+    const puzzleIdElement = document.getElementById("puzzle-id-value");
+    const rowClues = getRowClues();
+    // let puzzleId = rowClues.map(clue => clue.length > 0 ? clue.join(",") : "0").join(",");
+    puzzleIdElement.textContent = puzzleId || "Unknown";
+});
+
+// Disable mouse interactions with the grid
+document.addEventListener("DOMContentLoaded", () => {
+    const grid = document.getElementById("grid");
+    if (grid) {
+        grid.addEventListener("mousedown", (e) => e.preventDefault());
+        grid.addEventListener("click", (e) => e.preventDefault());
+    }
+});
 
 function addGridLines() {
     const gridDiv = document.getElementById("grid");
@@ -63,103 +76,16 @@ function initGrid(topClues = null, leftClues = null) {
             cell.classList.add("cell");
             cell.dataset.x = x;
             cell.dataset.y = y;
-            cell.addEventListener("mousedown", handleMouseDown);
-            cell.addEventListener("mouseover", handleMouseOver);
             cell.addEventListener("contextmenu", e => e.preventDefault());
             gridDiv.appendChild(cell);
         }
     }
-
-    document.addEventListener("mouseup", handleMouseUp);
 
     addGridLines();
     updateClues(topClues, leftClues); // Pass decoded clues if available
     updateCells();
     updateSizeDisplay();
     updateHashPreview();
-}
-
-function setDefaultPattern() {
-    width = 15;
-    height = 15;
-    solution = Array(height).fill().map(() => Array(width).fill(0));
-    const defaultHash = "505180212051502120713021206120112b11011109110c1101110311031203130212031208120f111103110113011103130112011301120114011901140217021509130";
-    let pos = 0;
-    for (let i = 0; i < defaultHash.length && pos < width * height; i += 2) {
-        const count = parseInt(defaultHash[i], 16);
-        const value = parseInt(defaultHash[i + 1], 10);
-        for (let j = 0; j < count && pos < width * height; j++) {
-            const y = Math.floor(pos / width);
-            const x = pos % width;
-            solution[y][x] = value;
-            pos++;
-        }
-    }
-}
-
-function handleMouseDown(e) {
-    const x = +e.target.dataset.x;
-    const y = +e.target.dataset.y;
-    if (isEditMode && e.button === 0) {
-        isDragging = true;
-        dragType = "edit";
-        grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-        solution = grid.map(row => [...row]);
-        updateCells();
-        updateClues();
-        updateURL();
-    } else if (isHintMode && e.button === 0) {
-        isDragging = true;
-        dragType = "hint";
-        grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-        solution = grid.map(row => [...row]);
-        updateCells();
-        updateClues();
-    } else if (!isEditMode && !isHintMode) {
-        isDragging = true;
-        if (e.button === 0) {
-            dragType = "left";
-            grid[y][x] = grid[y][x] === 2 ? 0 : 2;
-        } else if (e.button === 2) {
-            dragType = "right";
-            grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-            if (grid[y][x] === 1 && solution[y][x] === 0) applyPenalty();
-        }
-        updateCells();
-        checkWin();
-    }
-}
-
-function handleMouseOver(e) {
-    if (!isDragging) return;
-    const x = +e.target.dataset.x;
-    const y = +e.target.dataset.y;
-    if (dragType === "edit") {
-        grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-        solution = grid.map(row => [...row]);
-        updateCells();
-        updateClues();
-        updateURL();
-    } else if (dragType === "hint") {
-        grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-        solution = grid.map(row => [...row]);
-        updateCells();
-        updateClues();
-    } else if (dragType === "left") {
-        grid[y][x] = grid[y][x] === 2 ? 0 : 2;
-        updateCells();
-        checkWin();
-    } else if (dragType === "right") {
-        grid[y][x] = grid[y][x] === 1 ? 0 : 1;
-        if (grid[y][x] === 1 && solution[y][x] === 0) applyPenalty();
-        updateCells();
-        checkWin();
-    }
-}
-
-function handleMouseUp() {
-    isDragging = false;
-    dragType = null;
 }
 
 function updateCells() {
@@ -230,48 +156,6 @@ function updateClues(topClues = null, leftClues = null) {
     });
 }
 
-function updateRowClue(index, value) {
-    const numbers = value.trim().split(" ").map(Number).filter(n => !isNaN(n) && n > 0);
-    const span = document.createElement("span");
-    span.classList.add("clue-cell");
-    span.textContent = numbers.length ? numbers.join(" ") : "0";
-    const rowDiv = document.querySelectorAll("#row-clues > div")[index];
-    rowDiv.innerHTML = "";
-    rowDiv.appendChild(span);
-    updateSolutionFromClues();
-}
-
-function updateColClue(index, value) {
-    const numbers = value.trim().split(" ").map(Number).filter(n => !isNaN(n) && n > 0);
-    const span = document.createElement("span");
-    span.classList.add("clue-cell");
-    if (numbers.length) {
-        numbers.forEach(num => {
-            const numSpan = document.createElement("span");
-            numSpan.classList.add("clue-number");
-            numSpan.textContent = num;
-            span.appendChild(numSpan);
-        });
-    } else {
-        const numSpan = document.createElement("span");
-        numSpan.classList.add("clue-number");
-        numSpan.textContent = "0";
-        span.appendChild(numSpan);
-    }
-    const colClue = document.querySelectorAll("#col-clues .clue-cell")[index];
-    colClue.replaceWith(span);
-    updateSolutionFromClues();
-}
-
-function updateSolutionFromClues() {
-    const rowClues = getRowClues();
-    const colClues = getColClues();
-    solution = Array(height).fill().map(() => Array(width).fill(0));
-    grid = solution.map(row => [...row]);
-    updateCells();
-    updateURL();
-}
-
 function getCounts(arr) {
     const counts = [];
     let count = 0;
@@ -286,40 +170,6 @@ function getCounts(arr) {
     return counts;
 }
 
-function checkWin() {
-    const messageDiv = document.getElementById("message");
-    messageDiv.textContent = "";
-    messageDiv.classList.remove("lost");
-    if (isEditMode) return;
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            if (solution[y][x] === 1 && grid[y][x] !== 1) return;
-            if (solution[y][x] === 0 && grid[y][x] === 1) return;
-        }
-    }
-    messageDiv.textContent = "You Won!";
-}
-
-function updateURL() {
-    if (!isEditMode || isHintMode) return;
-    const binary = grid.flat().map(v => (v === 1 ? 1 : 0));
-    let rle = "";
-    let count = 1;
-    let current = binary[0];
-    for (let i = 1; i < binary.length; i++) {
-        if (binary[i] === current && count < 15) {
-            count++;
-        } else {
-            rle += count.toString(16) + current;
-            count = 1;
-            current = binary[i];
-        }
-    }
-    rle += count.toString(16) + current;
-    window.location.hash = `${width}x${height}:${rle}`;
-    updateHashPreview();
-}
-
 function updateHashPreview() {
     document.getElementById("hash-preview").value = window.location.hash || "";
 }
@@ -327,54 +177,6 @@ function updateHashPreview() {
 function updateSizeDisplay() {
     document.getElementById("width-value").textContent = width;
     document.getElementById("height-value").textContent = height;
-}
-
-function encodeCluesOnly(topClues, leftClues) {
-    const width = topClues.length;
-    const height = leftClues.length;
-
-    // Count total numbers
-    const topCount = topClues.reduce((sum, group) => sum + group.length, 0);
-    const leftCount = leftClues.reduce((sum, group) => sum + group.length, 0);
-
-    if (topCount > 127 || leftCount > 127) {
-        throw new Error('Too many numbers in clues');
-    }
-
-    // Header: 4 bits width, 4 bits height, 7 bits topCount, 7 bits leftCount
-    let bits = (width).toString(2).padStart(4, '0') +
-               (height).toString(2).padStart(4, '0') +
-               topCount.toString(2).padStart(7, '0') +
-               leftCount.toString(2).padStart(7, '0');
-
-    // Data: topClues
-    topClues.forEach(group => {
-        group.forEach((num, idx) => {
-            if (num < 0 || num > 15) {
-                throw new Error('Numbers in clues must be between 0 and 15');
-            }
-            bits += num.toString(2).padStart(4, '0') + (idx === group.length - 1 ? '1' : '0');
-        });
-    });
-
-    // Data: leftClues
-    leftClues.forEach(group => {
-        group.forEach((num, idx) => {
-            if (num < 0 || num > 15) {
-                throw new Error('Numbers in clues must be between 0 and 15');
-            }
-            bits += num.toString(2).padStart(4, '0') + (idx === group.length - 1 ? '1' : '0');
-        });
-    });
-
-    // Pad to byte boundary
-    while (bits.length % 8 !== 0) bits += '0';
-    const bytes = [];
-    for (let i = 0; i < bits.length; i += 8) {
-        bytes.push(parseInt(bits.slice(i, i + 8), 2));
-    }
-
-    return btoa(String.fromCharCode(...bytes));
 }
 
 function decodeCluesOnly(base64) {
@@ -440,44 +242,6 @@ function decodeCluesOnly(base64) {
     }
 
     return { topClues, leftClues };
-}
-
-function setClues(topClues, leftClues) {
-    console.log("Setting clues:", { topClues, leftClues });
-    const rowCluesDiv = document.getElementById("row-clues");
-    const colCluesDiv = document.getElementById("col-clues");
-    rowCluesDiv.innerHTML = "";
-    colCluesDiv.innerHTML = "";
-
-    // Set column clues (topClues)
-    topClues.forEach(clueGroup => {
-        const span = document.createElement("span");
-        span.classList.add("clue-cell");
-        if (clueGroup.length) {
-            clueGroup.forEach(num => {
-                const numSpan = document.createElement("span");
-                numSpan.classList.add("clue-number");
-                numSpan.textContent = num;
-                span.appendChild(numSpan);
-            });
-        } else {
-            const numSpan = document.createElement("span");
-            numSpan.classList.add("clue-number");
-            numSpan.textContent = "0";
-            span.appendChild(numSpan);
-        }
-        colCluesDiv.appendChild(span);
-    });
-
-    // Set row clues (leftClues)
-    leftClues.forEach(clueGroup => {
-        const div = document.createElement("div");
-        const span = document.createElement("span");
-        span.classList.add("clue-cell");
-        span.textContent = clueGroup.length ? clueGroup.join(" ") : "0";
-        div.appendChild(span);
-        rowCluesDiv.appendChild(div);
-    });
 }
 
 function decodeURL() {
